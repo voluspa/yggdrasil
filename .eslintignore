@@ -1,0 +1,4 @@
+bower_components/**
+priv/
+deps/
+web/static/vendor/
