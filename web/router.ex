@@ -20,8 +20,8 @@ defmodule Yggdrasil.Router do
     post "/login", SessionController, :create
     get "/logout", SessionController, :delete
 
-    get "/registration", RegistrationController, :new
-    post "/registration", RegistrationController, :create
+    get "/register", RegistrationController, :new
+    post "/register", RegistrationController, :create
 
     get "/client", ClientController, :index
   end
