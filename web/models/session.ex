@@ -13,12 +13,14 @@ defmodule Yggdrasil.Session do
     end
   end
 
+  # dummy_checkpw() used to prevent username enumeration
+  # still burns time as if checking for a password
   defp authenticate(_user, nil) do
-    false
+    Comeonin.Bcrypt.dummy_checkpw()
   end
 
   defp authenticate(nil, _password) do
-    false
+    Comeonin.Bcrypt.dummy_checkpw()
   end
 
   defp authenticate(user, password) do
