@@ -1,4 +1,4 @@
-defmodule Yggdrasil.Plug.SkipIfAuthenticated do
+defmodule Yggdrasil.Plug.RedirectIfAuthenticated do
   import Plug.Conn
   import Yggdrasil.Router.Helpers
   import Phoenix.Controller
