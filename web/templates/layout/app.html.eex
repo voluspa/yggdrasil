@@ -7,6 +7,10 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
+    <%= if logged_in?(@conn) do %>
+      <%= tag :meta, name: "game_token",
+                     content: Phoenix.Token.sign(@conn, "user", current_user(@conn).id) %>
+    <% end %>
     <title>Hello Yggdrasil!</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
@@ -16,7 +20,13 @@
       <header class="header">
         <nav role="navigation">
           <ul class="nav nav-pills pull-right">
-            <li><a href="http://www.phoenixframework.org/docs">Get Started</a></li>
+            <%= if logged_in?(@conn) do %>
+              <li><%= current_user(@conn).username %></li>
+              <li><%= link "Logout", to: session_path(@conn, :delete) %></li>
+            <% else %>
+              <li><%= link "Login", to: session_path(@conn, :new) %></li>
+              <li><%= link "Register", to: registration_path(@conn, :new) %></li>
+            <% end %>
           </ul>
         </nav>
         <span class="logo"></span>

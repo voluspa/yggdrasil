@@ -16,7 +16,13 @@ defmodule Yggdrasil.Router do
   scope "/", Yggdrasil do
     pipe_through :browser # Use the default browser stack
 
-    get "/", PageController, :index
+    get "/", SessionController, :new
+    post "/login", SessionController, :create
+    get "/logout", SessionController, :delete
+
+    get "/registration", RegistrationController, :new
+    post "/registration", RegistrationController, :create
+
     get "/client", ClientController, :index
   end
 
