@@ -1,6 +1,8 @@
 defmodule Yggdrasil.UserSocket do
   use Phoenix.Socket
 
+  require Logger
+
   ## Channels
   channel "game:*", Yggdrasil.GameChannel
 
@@ -19,8 +21,17 @@ defmodule Yggdrasil.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket) do
-    {:ok, socket}
+  def connect(%{"token" => token}, socket) do
+    # user id is stored in the token
+    case Phoenix.Token.verify(socket, "user socket", token, max_age: 1209600) do
+      {:ok, user_id} ->
+        Logger.debug fn -> inspect user_id end
+        socket = assign(socket, :user, user_id)
+        {:ok, socket}
+      {:error, msg} ->
+        Logger.error fn -> inspect msg end
+        :error
+    end
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
