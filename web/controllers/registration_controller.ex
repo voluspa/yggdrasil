@@ -7,7 +7,7 @@ defmodule Yggdrasil.RegistrationController do
   alias Yggdrasil.User
 
   # if logged in, go straight to client
-  plug Yggdrasil.Plug.SkipIfAuthenticated
+  plug Yggdrasil.Plug.RedirectIfAuthenticated
   plug :scrub_params, "user" when action in [:create]
 
   def new(conn, _params) do

@@ -5,7 +5,7 @@ defmodule Yggdrasil.SessionController do
   alias Yggdrasil.Session
 
   # go to client if logged in
-  plug Yggdrasil.Plug.SkipIfAuthenticated when action in [:create, :new]
+  plug Yggdrasil.Plug.RedirectIfAuthenticated when action in [:create, :new]
   # replaces empty strings with nil I believe
   # recommended to use mainly with html forms
   # also checks to see if it's there I think?!
