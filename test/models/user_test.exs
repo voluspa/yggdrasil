@@ -3,8 +3,8 @@ defmodule Yggdrasil.UserTest do
 
   alias Yggdrasil.User
 
-  @valid_attrs %{hash: "some content", username: "some content"}
-  @invalid_attrs %{}
+  @valid_attrs %{username: "some content", password: "password", password_confirmation: "password"}
+  @invalid_attrs %{username: "some content", password: "password", password_confirmation: "pass"}
 
   test "changeset with valid attributes" do
     changeset = User.changeset(%User{}, @valid_attrs)
