@@ -5,7 +5,7 @@ defmodule Yggdrasil.Plug.RedirectIfAuthenticated do
 
   def init(default), do: default
 
-  def call(conn, default) do
+  def call(conn, _default) do
     if get_session(conn, :current_user) do
       conn |> redirect(to: client_path(conn, :index)) |> halt
     else
