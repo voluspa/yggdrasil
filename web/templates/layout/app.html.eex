@@ -7,10 +7,6 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <%= if logged_in?(@conn) do %>
-      <%= tag :meta, name: "game_token",
-                     content: Phoenix.Token.sign(@conn, "user", current_user(@conn).id) %>
-    <% end %>
     <title>Hello Yggdrasil!</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
@@ -40,6 +36,7 @@
       </main>
 
     </div> <!-- /container -->
+    <script>window.userToken = "<%= assigns[:user_token] %>";</script>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>
