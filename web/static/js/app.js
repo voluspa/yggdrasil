@@ -19,20 +19,27 @@ import "deps/phoenix_html/web/static/js/phoenix_html"
 //
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
-
 import socket from "./socket"
 
-let $cmd = $("#command")
-let $events = $("#events")
+window.app = {
+  start () {
+    if (window.location.pathname !== "/client") return
 
-socket.on("event", payload => {
-  $events.append(`<li>[${Date()}] ${payload.body}`)
-})
+    socket.init()
 
-$cmd.on("keypress", e => {
-  if (e.keyCode !== 13) return
+    let $cmd = $("#command")
+    let $events = $("#events")
 
-  let cmdText = $cmd.val()
-  socket.push("user_cmd", { body: cmdText })
-  $cmd.val("")
-})
+    socket.on("event", payload => {
+      $events.append(`<li>[${Date()}] ${payload.body}`)
+    })
+
+    $cmd.on("keypress", e => {
+      if (e.keyCode !== 13) return
+
+      let cmdText = $cmd.val()
+      socket.push("user_cmd", { body: cmdText })
+      $cmd.val("")
+    })
+  }
+}
