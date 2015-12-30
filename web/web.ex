@@ -52,6 +52,7 @@ defmodule Yggdrasil.Web do
       import Yggdrasil.Router.Helpers
       import Yggdrasil.ErrorHelpers
       import Yggdrasil.Gettext
+      import Yggdrasil.Session
     end
   end
 
