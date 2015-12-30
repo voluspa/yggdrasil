@@ -4,6 +4,7 @@ defmodule Yggdrasil.UserTest do
   alias Yggdrasil.User
 
   @valid_attrs %{username: "tester", password: "password", password_confirmation: "password"}
+  @valid_attrs_upcase_user %{username: "TESTER", password: "password", password_confirmation: "password"}
 
   @missing_username %{password: "password", password_confirmation: "pass"}
   @missing_password %{username: "tester", password_confirmation: "password"}
@@ -75,5 +76,11 @@ defmodule Yggdrasil.UserTest do
     {error, changeset} = user |> Repo.insert
     assert changeset.errors[:username] == @unique_msg
     refute changeset.valid?
+  end
+
+  test "changset downcases username" do
+    user = User.changeset(%User{}, @valid_attrs_upcase_user)
+
+    assert user.changes[:username] == "tester"
   end
 end
