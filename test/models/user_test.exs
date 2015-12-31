@@ -97,7 +97,7 @@ defmodule Yggdrasil.UserTest do
   test "create_changeset downcases username" do
     user = User.create_changeset(%User{}, @valid_attrs_upcase_user)
 
-    assert user.changes[:username] == "tester"
+    assert user.changes.username == "tester"
   end
 
   test "create_changet genreates hash if valid" do
@@ -105,7 +105,7 @@ defmodule Yggdrasil.UserTest do
 
     assert Map.has_key?(changeset.changes, :hash)
 
-    hash = changeset.changes[:hash]
+    hash = changeset.changes.hash
     assert valid_hash(hash)
   end
 
@@ -114,7 +114,7 @@ defmodule Yggdrasil.UserTest do
 
     assert Map.has_key?(changeset.changes, :hash)
 
-    hash = changeset.changes[:hash]
+    hash = changeset.changes.hash
     assert valid_hash(hash)
   end
 
