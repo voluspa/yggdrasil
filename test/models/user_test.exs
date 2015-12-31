@@ -11,6 +11,7 @@ defmodule Yggdrasil.UserTest do
   @valid_attrs %{username: "tester", password: @password, password_confirmation: @password }
 
   @valid_attrs_upcase_user    Map.update!(@valid_attrs, :username, &String.upcase/1)
+  @hash_included              Map.put(@valid_attrs, :hash, "invalid_password")
   @missing_username           Map.drop(@valid_attrs, [:username])
   @missing_password           Map.drop(@valid_attrs, [:password])
   @missing_password_conf      Map.drop(@valid_attrs, [:password_confirmation])
@@ -158,5 +159,31 @@ defmodule Yggdrasil.UserTest do
 
     refute changeset.valid?
     assert hash_missing?(changeset)
+  end
+
+  test "create_changeset that is valid with hash passed in ignores hash" do
+    changeset = User.create_changeset(%User{}, @hash_included)
+
+    assert changeset.valid?
+    refute changeset.changes.hash == @hash_included.hash
+  end
+
+  # Don't think we need to test this but just incase, fairly certain only
+  # fields included in the changes map are actually commited
+  test "create_changeset that is valid with hash in model is ignored" do
+    changeset = User.create_changeset(%User{:hash => "invalid_password"}, @valid_attrs)
+
+    assert changeset.valid?
+    refute changeset.changes.hash == @hash_included.hash
+
+    {:ok, user} = Repo.insert(changeset)
+    refute user.password == "invalid_password"
+  end
+
+  test "create_changeset that is invalid with hash passed no hash is present" do
+    changeset = User.create_changeset(%User{}, @missing_username)
+
+    refute changeset.valid?
+    refute Map.has_key?(changeset.changes, :hash)
   end
 end
