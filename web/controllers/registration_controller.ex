@@ -14,7 +14,7 @@ defmodule Yggdrasil.RegistrationController do
   def create(conn, %{"user" => user_params}) do
     changeset = User.create_changeset(%User{}, user_params)
 
-    case changeset |> Repo.insert() do
+    case Repo.insert(changeset) do
       {:ok, new_user} -> 
         conn
           |> put_flash(:info, "Succesfully registered and logged in")
