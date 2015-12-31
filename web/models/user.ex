@@ -28,31 +28,6 @@ defmodule Yggdrasil.User do
   end
 
   @doc """
-  update_pw_changeset shuld be used when updating a password for a user.
-  it will only change the password field and ensures that username and other
-  fields are not modified.
-  """
-  def update_pw_changeset(model, params \\ :empty) do
-    model
-    |> cast(params, ~w(password password_confirmation), ~w())
-    |> validate_length(:password, min: 4)
-    |> validate_length(:password_confirmation, min: 4)
-    |> validate_confirmation(:password)
-    |> hash_password
-  end
-
-  @doc """
-  update_changeset should be used for general updates it exlcudes the hash field
-  if you need to update the users password please use update_pw_changeset
-  """
-  def update_changeset(model, params \\ :empty) do
-    model
-    |> cast(params, ~w(username), ~w())
-    |> update_change(:username, &String.downcase/1)
-    |> unique_constraint(:username)
-  end
-
-  @doc """
   adds password at end of chain protects the hashpwsalt from seeing a nil value
   in the case of missing password field.
   """
