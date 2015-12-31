@@ -24,7 +24,7 @@ defmodule Yggdrasil.User do
     |> validate_length(:password, min: 4)
     |> validate_length(:password_confirmation, min: 4)
     |> validate_confirmation(:password)
-    |> add_password
+    |> hash_password
   end
 
   @doc """
@@ -38,7 +38,7 @@ defmodule Yggdrasil.User do
     |> validate_length(:password, min: 4)
     |> validate_length(:password_confirmation, min: 4)
     |> validate_confirmation(:password)
-    |> add_password
+    |> hash_password
   end
 
   @doc """
@@ -56,11 +56,11 @@ defmodule Yggdrasil.User do
   adds password at end of chain protects the hashpwsalt from seeing a nil value
   in the case of missing password field.
   """
-  def add_password(changeset = %{:valid? => false}) do
+  def hash_password(changeset = %{:valid? => false}) do
     changeset
   end
 
-  def add_password(changeset = %{:valid? => true}) do
+  def hash_password(changeset = %{:valid? => true}) do
     changeset
       |> put_change(:hash, hashpwsalt(changeset.params["password"]))
   end
