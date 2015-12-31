@@ -13,7 +13,7 @@ defmodule Yggdrasil.SessionController do
 
   # not sure why this can't be index...
   def new(conn, _params) do
-    render conn, changeset: User.changeset(%User{})
+    render conn, changeset: User.create_changeset(%User{})
   end
 
   def create(conn, %{"user" => user_params}) do
@@ -26,7 +26,7 @@ defmodule Yggdrasil.SessionController do
       :error ->
         conn
           |> put_flash(:error, "Invalid username or password")
-          |> render("new.html", changeset: User.changeset(%User{}))
+          |> render("new.html", changeset: User.create_changeset(%User{}))
     end
   end
 
