@@ -3,8 +3,6 @@ defmodule Yggdrasil.Plug.Authenticate do
   import Yggdrasil.Router.Helpers
   import Phoenix.Controller
 
-  require Logger
-
   def init(default), do: default
 
   def call(conn, _default) do
