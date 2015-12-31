@@ -24,7 +24,7 @@ defmodule Yggdrasil.User do
     |> validate_length(:password, min: 4)
     |> validate_length(:password_confirmation, min: 4)
     |> validate_confirmation(:password)
-    |> add_password(params)
+    |> add_password
   end
 
   @doc """
@@ -38,7 +38,7 @@ defmodule Yggdrasil.User do
     |> validate_length(:password, min: 4)
     |> validate_length(:password_confirmation, min: 4)
     |> validate_confirmation(:password)
-    |> add_password(params)
+    |> add_password
   end
 
   @doc """
@@ -53,20 +53,15 @@ defmodule Yggdrasil.User do
   end
 
   @doc """
-  wrapped this in function need to ensure password is not nil
-  this is still reached even if the other validations have failed
+  adds password at end of chain protects the hashpwsalt from seeing a nil value
+  in the case of missing password field.
   """
-  def add_password(changeset, :empty) do
+  def add_password(changeset = %{:valid? => false}) do
     changeset
   end
 
-  def add_password(changeset, params) do
-    # simply just going to do this only if params[:password] is not nil
-    if !!params[:password] do
-      put_change(changeset, :hash, hashpwsalt(params[:password]))
-    else
-      #skip for now
-      changeset
-    end
+  def add_password(changeset = %{:valid? => true}) do
+    changeset
+      |> put_change(:hash, hashpwsalt(changeset.params["password"]))
   end
 end
