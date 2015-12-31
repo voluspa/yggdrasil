@@ -22,7 +22,9 @@ defmodule Yggdrasil.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   def connect(%{"token" => token}, socket) do
-    # user id is stored in the token
+    # max_age of 1209600 is two weeks
+    # tokens carry the time in ms when they were signed and max_age is used to
+    # expire the token.
     case Phoenix.Token.verify(socket, "user socket", token, max_age: 1209600) do
       {:ok, user_id} ->
         Logger.debug fn -> inspect user_id end
