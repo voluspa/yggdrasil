@@ -85,11 +85,11 @@ defmodule Yggdrasil.UserTest do
 
   test "create_changeset unique username constraint" do
     # insert the user once
-    user = User.create_changeset(%User{}, @valid_attrs)
-    {:ok, _user} = user |> Repo.insert
+    user_changeset = User.create_changeset(%User{}, @valid_attrs)
+    {:ok, _user} = Repo.insert(user_changeset)
 
     # try again to invoke unique constraint
-    {:error, changeset} = user |> Repo.insert
+    {:error, changeset} = Repo.insert(user_changeset)
     assert changeset.errors[:username] == @unique_msg
     refute changeset.valid?
   end
