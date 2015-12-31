@@ -27,7 +27,6 @@ defmodule Yggdrasil.UserSocket do
     # expire the token.
     case Phoenix.Token.verify(socket, "user socket", token, max_age: 1209600) do
       {:ok, user_id} ->
-        Logger.debug fn -> inspect user_id end
         socket = assign(socket, :user, user_id)
         {:ok, socket}
       {:error, msg} ->
