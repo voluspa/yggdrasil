@@ -101,7 +101,7 @@ defmodule Yggdrasil.UserTest do
     assert user.changes.username == "tester"
   end
 
-  test "create_changet genreates hash if valid" do
+  test "create_changet generates hash if valid" do
     changeset = User.create_changeset(%User{}, @valid_attrs)
 
     assert Map.has_key?(changeset.changes, :hash)
@@ -110,7 +110,7 @@ defmodule Yggdrasil.UserTest do
     assert valid_hash(hash)
   end
 
-  test "create_changet doesn't genreates hash if username missing" do
+  test "create_changet doesn't generates hash if username missing" do
     changeset = User.create_changeset(%User{}, @valid_attrs)
 
     assert Map.has_key?(changeset.changes, :hash)
