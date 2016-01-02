@@ -9,6 +9,7 @@ defmodule Yggdrasil.Mixfile do
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     test_coverage: [tool: ExCoveralls],
      aliases: aliases,
      deps: deps]
   end
@@ -37,7 +38,8 @@ defmodule Yggdrasil.Mixfile do
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:gettext, "~> 0.9"},
      {:cowboy, "~> 1.0"},
-     {:comeonin, "~> 2.0"}]
+     {:comeonin, "~> 2.0"},
+     {:excoveralls, "~> 0.4.3"}]
   end
 
   # Aliases are shortcut or tasks specific to the current project.
