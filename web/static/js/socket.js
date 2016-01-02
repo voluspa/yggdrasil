@@ -51,26 +51,36 @@ import {Socket} from "deps/phoenix/web/static/js/phoenix"
 // from connect if you don't care about authentication.
 
 let socket = null
-let channel = null
-
+let game_channel = null
+let player_channel = null
 
 export default {
-  init () {
+  init (done) {
     socket = new Socket("/socket", {params: {token: window.userToken}})
     socket.connect()
 
     // Now that you are connected, you can join channels with a topic:
-    channel = socket.channel("game:lobby", {"token": window.userToken })
-    channel.join()
-      .receive("ok", resp => { console.log("Joined successfully", resp) })
-      .receive("error", resp => { console.log("Unable to join", resp) })
+    game_channel = socket.channel("game:lobby", {"token": window.userToken })
+    game_channel.join()
+      .receive("ok", resp => {
+        player_channel = socket.channel(resp.topic, {"token": window.userToken})
+        player_channel.join()
+          .receive("ok", resp => { done(null, resp) })
+          .receive("error", resp => { done(new Error(resp.error)) })
+      })
+      .receive("error", resp => { done(new Error(resp.error)) })
   },
 
   push (message, payload) {
-    channel.push(message, payload)
+    player_channel.push(message, payload)
   },
 
   on (event, callback) {
-    channel.on(event, callback)
+    game_channel.on(event, callback)
+    player_channel.on(event, callback)
+  },
+
+  join () {
+    player_channel.push("join_game")
   }
 }

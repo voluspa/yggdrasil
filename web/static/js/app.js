@@ -25,21 +25,25 @@ window.app = {
   start () {
     if (window.location.pathname !== "/client") return
 
-    socket.init()
+    socket.init((err) => {
+      if (err) return alert(err.message)
 
-    let $cmd = $("#command")
-    let $events = $("#events")
+      let $cmd = $("#command")
+      let $events = $("#events")
 
-    socket.on("event", payload => {
-      $events.append(`<li>[${Date()}] ${payload.body}`)
-    })
+      socket.on("event", payload => {
+        $events.append(`<li>[${Date()}] ${payload.message}`)
+      })
 
-    $cmd.on("keypress", e => {
-      if (e.keyCode !== 13) return
+      $cmd.on("keypress", e => {
+        if (e.keyCode !== 13) return
 
-      let cmdText = $cmd.val()
-      socket.push("user_cmd", { body: cmdText })
-      $cmd.val("")
+        let cmdText = $cmd.val()
+        socket.push("player_cmd", { text: cmdText })
+        $cmd.val("")
+      })
+
+      socket.join()
     })
   }
 }

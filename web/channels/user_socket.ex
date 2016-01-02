@@ -5,6 +5,7 @@ defmodule Yggdrasil.UserSocket do
 
   ## Channels
   channel "game:*", Yggdrasil.GameChannel
+  channel "player:*", Yggdrasil.PlayerChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
