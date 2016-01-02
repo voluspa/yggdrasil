@@ -77,4 +77,10 @@ defmodule Yggdrasil.AuthenticateTest do
     assert token
     assert Phoenix.Token.verify(conn, "user socket", token, max_age: 1209600)
   end
+
+  # bumps coverage to 100%, and if we chose to use init later we are covered
+  # this test will fail and we can adjust it for the new impl
+  test "Authenticate.init will return what was passed in, default impl is to return the params passed in" do
+    assert Authenticate.init([]) == []
+  end
 end
