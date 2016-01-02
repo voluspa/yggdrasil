@@ -1,5 +1,5 @@
 # Yggdrasil
-[![Build Status](https://travis-ci.org/voluspa/yggdrasil.svg?branch=coveralls)](https://travis-ci.org/voluspa/yggdrasil)
+[![Build Status](https://travis-ci.org/voluspa/yggdrasil.svg?branch=coveralls)](https://travis-ci.org/voluspa/yggdrasil) [![Coverage Status](https://coveralls.io/repos/voluspa/yggdrasil/badge.svg?branch=master&service=github)](https://coveralls.io/github/voluspa/yggdrasil?branch=master)
 
 To start your Phoenix app:
 
