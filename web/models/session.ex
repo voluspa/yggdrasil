@@ -1,7 +1,7 @@
 defmodule Yggdrasil.Session do
   alias Yggdrasil.User
 
-  def login(%{"username" => nil}, repo) do
+  def login(%{"username" => nil}, _repo) do
     :error
   end
 
