@@ -27,3 +27,18 @@ import_config "#{Mix.env}.exs"
 config :phoenix, :generators,
   migration: true,
   binary_id: false
+
+# Configure plug for json mime type
+# will require plug to be recompiled
+config :plug, :mimes, %{
+  "application/vnd.api+json" => ["json-api"]
+}
+
+config :guardian, Guardian,
+  allowed_algos: ["HS512"], # optional
+  verify_module: Guardian.JWT,  # optional
+  issuer: "Yggdrasil",
+  ttl: { 1, :days },
+  verify_issuer: true, # optional
+  secret_key: "5t7ODk6J7ixv/64cq5hAObI8PRnzp334PYcGgt15ktmI2F4XcpaAHGDvwvT3sgEp",
+  serializer: Yggdrasil.GuardianSerializer

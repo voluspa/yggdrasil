@@ -39,7 +39,9 @@ defmodule Yggdrasil.Mixfile do
      {:gettext, "~> 0.9"},
      {:cowboy, "~> 1.0"},
      {:comeonin, "~> 2.0"},
-     {:excoveralls, "~> 0.4.3"}]
+     {:excoveralls, "~> 0.4.3"},
+     {:ja_serializer, "~> 0.6.1"},
+     {:guardian, "~> 0.9.0"}]
   end
 
   # Aliases are shortcut or tasks specific to the current project.

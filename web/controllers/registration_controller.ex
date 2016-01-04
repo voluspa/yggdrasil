@@ -3,25 +3,27 @@ defmodule Yggdrasil.RegistrationController do
 
   alias Yggdrasil.User
 
-  # if logged in, go straight to client
-  plug Yggdrasil.Plug.RedirectIfAuthenticated
-  plug :scrub_params, "user" when action in [:create]
+  @invalid_document %{title: "Invalid document.",
+                      detail: "Invalid document."}
 
-  def new(conn, _params) do
-    render conn, changeset: User.create_changeset(%User{})
+  def create(conn, %{"data" => %{"attributes" => nil}}) do
+    render conn, :errors, data: @invalid_document
   end
 
-  def create(conn, %{"user" => user_params}) do
-    changeset = User.create_changeset(%User{}, user_params)
+  def create(conn, %{"data" => %{"attributes" => attributes}}) do
+    changeset = User.create_changeset(%User{}, attributes)
 
     case Repo.insert(changeset) do
-      {:ok, new_user} -> 
+      {:ok, new_user} ->
         conn
-          |> put_flash(:info, "Succesfully registered and logged in")
-          |> put_session(:current_user, new_user)
-          |> redirect(to: client_path(conn, :index))
+          |> Guardian.Plug.api_sign_in(new_user)
+          |> render(:show, data: new_user)
       {:error, err_changeset} ->
-        render conn, "new.html", changeset: err_changeset
+        render conn, :errors, data: err_changeset
     end
+  end
+
+  def create(conn, %{}) do
+    render conn, :errors, data: @invalid_document
   end
 end

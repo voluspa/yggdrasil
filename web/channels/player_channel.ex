@@ -6,7 +6,7 @@ defmodule Yggdrasil.PlayerChannel do
   require Logger
 
   def join("player:" <> user_id = topic, _message, socket) do
-    if socket.assigns.user == String.to_integer(user_id) do
+    if socket.assigns.user == user_id do
       socket = assign socket, :player_topic, topic
       {:ok, socket}
     else
