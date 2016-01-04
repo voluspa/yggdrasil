@@ -10,7 +10,9 @@ defmodule Yggdrasil.Router do
   end
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug :accepts, ["json-api"]
+    plug JaSerializer.ContentTypeNegotiation
+    plug JaSerializer.Deserializer
   end
 
   scope "/", Yggdrasil do
@@ -24,10 +26,14 @@ defmodule Yggdrasil.Router do
     post "/register", RegistrationController, :create
 
     get "/client", ClientController, :index
+
+    resources "users", UsersController, only: [:index, :show]
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", Yggdrasil do
-  #   pipe_through :api
-  # end
+  scope "/api", Yggdrasil, as: :api do
+    pipe_through :api
+
+    resources "users", UsersController, only: [:index, :show]
+  end
 end
