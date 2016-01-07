@@ -15,8 +15,12 @@ defmodule Yggdrasil.RegistrationController do
     changeset = User.create_changeset(%User{}, user_params)
 
     case Repo.insert(changeset) do
-      {:ok, new_user} -> 
+      {:ok, new_user} ->
+        token = Phoenix.Token.sign(conn, "api_token", new_user.id)
+        # treat the user like they are logged in now
+        # and return a token for the client to use
         conn
+          |> assign(:token, token)
           |> put_flash(:info, "Succesfully registered and logged in")
           |> put_session(:current_user, new_user)
           |> redirect(to: client_path(conn, :index))
