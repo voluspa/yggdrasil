@@ -34,6 +34,7 @@ defmodule Yggdrasil.Router do
   scope "/api/auth", Yggdrasil, as: :api_auth do
     pipe_through :api
 
+    post "/login", TokenController, :create
     post "/register", JaRegistrationController, :create
   end
 
