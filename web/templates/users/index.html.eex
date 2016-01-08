@@ -1,7 +1,0 @@
-<div>
-  <ul>
-    <%= Enum.map @model, fn model -> %>
-      <li><%= model.username %></li>
-    <% end %>
-  </ul>
-</div>

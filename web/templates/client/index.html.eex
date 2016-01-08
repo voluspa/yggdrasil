@@ -1,5 +1,0 @@
-<div class="client">
-  <ul id="events">
-  </ul>
-  <input id="command" type="text" placeholder="Type 'Enter' to submit"/>
-</div>
