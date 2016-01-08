@@ -8,11 +8,11 @@ defmodule Yggdrasil.RegistrationController do
 
     case Repo.insert(changeset) do
       {:ok, new_user} ->
-        token = Phoenix.Token.sign(conn, "api_token", new_user.id)
-        conn = assign(conn, :token, token)
-        render conn, "show.json", data: new_user
+        conn
+          |> Guardian.Plug.api_sign_in(new_user)
+          |> render(:show, data: new_user)
       {:error, err_changeset} ->
-        render conn, "errors.json", data: err_changeset
+        render conn, :errors, data: err_changeset
     end
   end
 end

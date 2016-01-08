@@ -7,18 +7,23 @@ defmodule Yggdrasil.Router do
     plug JaSerializer.Deserializer
   end
 
-  @doc """
+  pipeline :guardian do
+    plug Guardian.Plug.VerifyHeader
+    plug Guardian.Plug.EnsureAuthenticated, handler: Yggdrasil.GuardianErrorHandler
+  end
+
+  @docs """
   scoped so that /api/auth will not have an auth plug
   in it's pipeline
   """
   scope "/api/auth", Yggdrasil, as: :api_auth do
     pipe_through :api
 
-    post "/login", TokenController, :create
+    post "/login", SessionController, :create
     post "/register", RegistrationController, :create
   end
 
-  @doc """
+  @docs """
   seperate scope so all api calls that are not auth
   will be setup like this
 
@@ -30,6 +35,7 @@ defmodule Yggdrasil.Router do
   """
   scope "/api", Yggdrasil, as: :api do
     pipe_through :api
+    pipe_through :guardian
 
     resources "users", UsersController
   end

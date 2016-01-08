@@ -1,4 +1,4 @@
-defmodule Yggdrasil.TokenView do
+defmodule Yggdrasil.SessionView do
   use Yggdrasil.Web, :view
   use JaSerializer.PhoenixView
 
@@ -16,6 +16,6 @@ defmodule Yggdrasil.TokenView do
   end
 
   def token(_user, conn) do
-    conn.assigns[:token]
+    Guardian.Plug.current_token(conn)
   end
 end
