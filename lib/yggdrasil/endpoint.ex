@@ -35,5 +35,6 @@ defmodule Yggdrasil.Endpoint do
     key: "_yggdrasil_key",
     signing_salt: "3QrbbtSA"
 
+  plug CORSPlug
   plug Yggdrasil.Router
 end
