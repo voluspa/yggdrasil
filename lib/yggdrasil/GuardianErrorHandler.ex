@@ -5,6 +5,8 @@ defmodule Yggdrasil.GuardianErrorHandler do
 
   def unauthenticated(conn, _params) do
     conn
+      # :unauthroized -> 401 covers both unauthenticated 
+      # and unautherized requests from the client
       |> send_resp(:unauthorized, "")
   end
 

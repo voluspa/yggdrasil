@@ -37,6 +37,6 @@ defmodule Yggdrasil.Router do
     pipe_through :api
     pipe_through :guardian
 
-    resources "users", UsersController
+    # not used at the moment, but setup
   end
 end

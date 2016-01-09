@@ -5,8 +5,8 @@ defmodule Yggdrasil.SessionController do
 
   alias Yggdrasil.Session
 
-  @invalid_username %{title: "invalid username/password", 
-                      detail: "invalid username/password provided"}
+  @invalid_username %{title: "Invalid username/password", 
+                      detail: "Invalid username/password provided."}
 
   def create(conn, params) do
     user_params = params["data"]["attributes"]

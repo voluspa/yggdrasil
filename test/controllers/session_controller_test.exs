@@ -16,6 +16,8 @@ defmodule Yggdrasil.SessionControllerTest do
   @bad_user %{username: "dont_exist",
                password: "password"}
 
+  @invalid_username "Invalid username/password"
+
   defp create_user do
     db_user = Map.put @good_user, :password_confirmation, @good_user.password
     {:ok, new_user} = Repo.insert(User.create_changeset(%User{}, db_user))
@@ -49,7 +51,6 @@ defmodule Yggdrasil.SessionControllerTest do
   defp format_user(user) do
     %{"data" => %{"attributes" => %{"username" => user.username},
                   "id" => "#{user.id}",
-                  "links" => %{"self" => "http://localhost:4001/api/users/#{user.id}"},
                   "type" => "users"},
       "jsonapi" => %{"version" => "1.0"}}
   end
@@ -87,30 +88,30 @@ defmodule Yggdrasil.SessionControllerTest do
   test "user login correct username but bad password returns error", %{conn: conn} do
     {:ok, _user, conn} = post_user_json(conn, @good_user_bad_pw)
 
-    assert response(conn, :ok) =~ "invalid username/password"
+    assert response(conn, :ok) =~ @invalid_username
   end
 
   test "user login bad username and password returns error", %{conn: conn} do
     {:ok, _user, conn} = post_user_json(conn, @bad_user)
 
-    assert response(conn, :ok) =~ "invalid username/password"
+    assert response(conn, :ok) =~ @invalid_username
   end
 
   test "user login no username but includes password returns error", %{conn: conn} do
     {:ok, _user, conn} = post_user_json(conn, Map.delete(@bad_user, :username))
 
-    assert response(conn, :ok) =~ "invalid username/password"
+    assert response(conn, :ok) =~ @invalid_username
   end
 
   test "user login no username or password returns error", %{conn: conn} do
     {:ok, _user, conn} = post_user_json(conn, %{})
 
-    assert response(conn, :ok) =~ "invalid username/password"
+    assert response(conn, :ok) =~ @invalid_username
   end
 
   test "user nil attributes returns error", %{conn: conn} do
     {:ok, _user, conn} = post_user_json(conn, nil)
 
-    assert response(conn, :ok) =~ "invalid username/password"
+    assert response(conn, :ok) =~ @invalid_username
   end
 end
