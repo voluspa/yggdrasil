@@ -28,11 +28,12 @@ defmodule Yggdrasil.SessionControllerTest do
   defp post_user_json(conn, user_params) do
     user = create_user()
     user_json = serialize_user(user_params)
+    path = api_auth_session_path(conn, :create)
 
     conn = conn
       |> put_req_header("content-type", @json_api_content_type)
       |> put_req_header("accept", @json_api_content_type)
-      |> post("/api/auth/login", user_json)
+      |> post(path, user_json)
 
     assert response_content_type(conn, :json) == @json_api_content_type_utf8
 
@@ -45,9 +46,6 @@ defmodule Yggdrasil.SessionControllerTest do
     Poison.encode! json_api_doc
   end
 
-  # hard coded url, don't want this, but works for now...
-  # not 4001 because that's what the server returns
-  # on test
   defp format_user(user) do
     %{"data" => %{"attributes" => %{"username" => user.username},
                   "id" => "#{user.id}",

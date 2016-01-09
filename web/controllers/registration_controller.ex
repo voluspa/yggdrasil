@@ -3,8 +3,15 @@ defmodule Yggdrasil.RegistrationController do
 
   alias Yggdrasil.User
 
-  def create(conn, params) do
-    changeset = User.create_changeset(%User{}, params["data"]["attributes"])
+  @invalid_document %{title: "Invalid document.",
+                      detail: "Invalid document."}
+
+  def create(conn, %{"data" => %{"attributes" => nil}}) do
+    render conn, :errors, data: @invalid_document
+  end
+
+  def create(conn, %{"data" => %{"attributes" => attributes}}) do
+    changeset = User.create_changeset(%User{}, attributes)
 
     case Repo.insert(changeset) do
       {:ok, new_user} ->
@@ -14,5 +21,9 @@ defmodule Yggdrasil.RegistrationController do
       {:error, err_changeset} ->
         render conn, :errors, data: err_changeset
     end
+  end
+
+  def create(conn, %{}) do
+    render conn, :errors, data: @invalid_document
   end
 end

@@ -4,7 +4,9 @@ defmodule Yggdrasil.RegistrationView do
 
   attributes [:username, :token]
 
+  def type, do: "users"
+
   def token(_user, conn) do
-    conn.assigns[:token]
+    Guardian.Plug.current_token(conn)
   end
 end
