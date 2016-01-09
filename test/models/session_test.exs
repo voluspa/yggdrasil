@@ -83,31 +83,72 @@ defmodule Yggdrasil.SessionTest do
     assert :error == Session.login(login_params, Repo)
   end
 
-  test "login without username and correct password returns error" do
+  test "login with nil username and correct password returns error" do
     {:ok, _user} = setup_user()
 
     login_params = create_login_params(nil, @correct_password)
     assert :error == Session.login(login_params, Repo)
   end
 
-  test "login without username and incorrect password returns error" do
+  test "login with nil username and incorrect password returns error" do
     {:ok, _user} = setup_user()
 
     login_params = create_login_params(nil, @incorrect_password)
     assert :error == Session.login(login_params, Repo)
   end
 
-  test "login with correct username and no password returns error" do
+  test "login with correct username and nil password returns error" do
     {:ok, _user} = setup_user()
 
     login_params = create_login_params(@correct_username, nil)
     assert :error == Session.login(login_params, Repo)
   end
 
-  test "login with incorrect username and no password returns error" do
+  test "login with incorrect username and nil password returns error" do
     {:ok, _user} = setup_user()
 
     login_params = create_login_params(@incorrect_username, nil)
     assert :error == Session.login(login_params, Repo)
+  end
+
+  test "login with no username key but has correct password returns error" do
+    {:ok, _user} = setup_user()
+
+    login_params = Map.delete create_login_params(nil, @correct_password), "username"
+    assert :error == Session.login(login_params, Repo)
+  end
+
+  test "login with no username key but has incorrect password returns error" do
+    {:ok, _user} = setup_user()
+
+    login_params = Map.delete create_login_params(nil, @incorrect_password), "username"
+    assert :error == Session.login(login_params, Repo)
+  end
+
+  test "login with correct username but has no password key returns error" do
+    {:ok, _user} = setup_user()
+
+    login_params = Map.delete create_login_params(@correct_username, nil), "password"
+    assert :error == Session.login(login_params, Repo)
+  end
+
+  test "login with incorrect username but has no password key returns error" do
+    {:ok, _user} = setup_user()
+
+    login_params = Map.delete create_login_params(@incorrect_username, nil), "password"
+    assert :error == Session.login(login_params, Repo)
+  end
+
+  test "login with no username or password keys returns error" do
+    {:ok, _user} = setup_user()
+
+    login_params = %{}
+    assert :error == Session.login(login_params, Repo)
+  end
+
+  test "login with nil login_params returns error" do
+    {:ok, _user} = setup_user()
+
+    assert :error == Session.login(nil, Repo)
   end
 end
