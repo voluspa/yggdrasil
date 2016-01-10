@@ -13,6 +13,8 @@ defmodule Yggdrasil do
       supervisor(Yggdrasil.Repo, []),
       # Here you could define other workers and supervisors as children
       # worker(Yggdrasil.Worker, [arg1, arg2, arg3]),
+      supervisor(Yggdrasil.Player.Supervisor, []),
+      worker(Yggdrasil.Player.Registry, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
