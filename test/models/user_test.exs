@@ -15,6 +15,7 @@ defmodule Yggdrasil.UserTest do
   @missing_username           Map.drop(@valid_attrs, [:username])
   @missing_password           Map.drop(@valid_attrs, [:password])
   @missing_password_conf      Map.drop(@valid_attrs, [:password_confirmation])
+  @username_spaces            Map.update!(@valid_attrs, :username, fn username -> "username with spaces" end)
   @password_mismatch          %{@valid_attrs | :password => "not password"}
   @password_bad_len           %{@valid_attrs | :password => @short_password}
   @password_conf_bad_len      %{@valid_attrs | :password => @short_password,
@@ -24,6 +25,7 @@ defmodule Yggdrasil.UserTest do
   @doesntmatch_msg "does not match confirmation"
   @unique_msg "has already been taken"
   @invalid_length_msg "should be at least %{count} character(s)"
+  @spaces_msg "can't contain spaces"
 
   # -- helpers
 
@@ -185,5 +187,12 @@ defmodule Yggdrasil.UserTest do
 
     refute changeset.valid?
     refute Map.has_key?(changeset.changes, :hash)
+  end
+
+  test "create_changeset that has spaces in username is invalid" do
+    changeset = User.create_changeset(%User{}, @username_spaces)
+    
+    assert changeset.errors[:username] == @spaces_msg
+    refute changeset.valid?
   end
 end
