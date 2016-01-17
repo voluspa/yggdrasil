@@ -5,12 +5,9 @@ export default Ember.Component.extend({
   init() {
     this.set('messages', Ember.makeArray());
     GameChannel.init(this.get('session-manager').currentToken());
+    GameChannel.onSocketError(() => { this.get('session-manager').invalidateSession(); });
     GameChannel.on('event', payload => {
-      this.putMessage({
-        server: {
-          text: payload.body
-        }
-      });
+      this.addServerMessage(payload.body);
     });
     this._super(...arguments);
   },
@@ -21,11 +18,7 @@ export default Ember.Component.extend({
 
       if (!command || command.length === 0) { return; }
 
-      this.putMessage({
-        client: {
-          text: command
-        }
-      });
+      this.addClientMessage(command);
 
       GameChannel.push('user_cmd', {body: command});
       this.set('command', null);
@@ -48,6 +41,20 @@ export default Ember.Component.extend({
     const div = this.$('.panel-body');
     Ember.run.schedule('afterRender', () => {
       div.scrollTop(div.prop("scrollHeight") - div.prop("clientHeight"));
+    });
+  },
+
+  addClientMessage(text) {
+    this.putMessage({
+      cssClass: '',
+      text: '> ' + text
+    });
+  },
+
+  addServerMessage(text) {
+    this.putMessage({
+      cssClass: 'response',
+      text: text
     });
   },
 

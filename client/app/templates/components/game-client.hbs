@@ -10,11 +10,7 @@
             {{#each messages as |msg|}}
               <li class="clearfix">
                 <div class="chat-body clearfix">
-                  {{#if msg.server}}
-                    <p class="response">{{msg.server.text}}</p>
-                  {{else}}
-                    <p>&gt; {{msg.client.text}}</p>
-                  {{/if}}
+                  <p class="{{msg.cssClass}}">{{msg.text}}</p>
                 </div>
               </li>
             {{/each}}

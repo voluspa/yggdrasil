@@ -66,6 +66,10 @@ export default Ember.Service.extend({
     return authenticate(this.get('session'), user, ENV.yggdrasil.registerPath); 
   },
 
+  invalidateSession() {
+    this.get('session').invalidate();
+  },
+
   currentToken() {
     return this.get('session.data.authenticated.token');
   }

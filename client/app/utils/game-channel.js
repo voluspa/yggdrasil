@@ -9,6 +9,7 @@ export default {
     socket = new Socket(ENV.yggdrasil.socket + '/socket',
                         {params: {token: token}});
     socket.connect();
+    socket.onError((err) => { console.log("socket error", err) });
 
     // Now that you are connected, you can join channels with a topic:
     channel = socket.channel("game:lobby", {"token": token});
@@ -23,6 +24,10 @@ export default {
 
   on (event, callback) {
     channel.on(event, callback);
+  },
+
+  onSocketError(callback) {
+    socket.onError(callback);
   },
 
   destroy() {
