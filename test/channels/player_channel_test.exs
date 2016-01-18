@@ -4,11 +4,11 @@ defmodule PlayerChannelTest do
   alias Yggdrasil.Message
 
   test "it returns an auth error if the wrong user tries to connect" do
-    assert {:error, %{ error: "auth failure" }} = join_channel 1, "player:2"
+    assert {:error, %{ error: "auth failure" }} = join_channel "1", "player:2"
   end
 
   test "it will join the player to the game when recieving a 'join_game'" do
-    user_id = 20
+    user_id = "20"
 
     {:ok, _reply, socket} = join_channel user_id
     ref = push(socket, "join_game")
@@ -18,7 +18,7 @@ defmodule PlayerChannelTest do
   end
 
   test "it notifies the player if another client issues a 'join_game'" do
-    user_id = 20
+    user_id = "20"
 
     {:ok, _reply, socket1} = join_channel user_id
 

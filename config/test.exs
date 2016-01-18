@@ -17,3 +17,9 @@ config :yggdrasil, Yggdrasil.Repo,
   database: "yggdrasil_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+# Configure plug for json mime type
+# will require plug to be recompiled
+config :plug, :mimes, %{
+  "application/vnd.api+json" => ["json-api"]
+}
