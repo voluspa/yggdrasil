@@ -3,11 +3,11 @@ defmodule Yggdrasil.PlayerChannel do
   alias Yggdrasil.Player
   alias Yggdrasil.Endpoint
   alias Yggdrasil.Message
+  alias Yggdrasil.Command.Parser
   require Logger
 
-  def join("player:" <> user_id = topic, _message, socket) do
+  def join("player:" <> user_id = _topic, _message, socket) do
     if socket.assigns.user == user_id do
-      socket = assign socket, :player_topic, topic
       {:ok, socket}
     else
       {:error, %{ error: "auth failure"} }
@@ -16,7 +16,7 @@ defmodule Yggdrasil.PlayerChannel do
 
   def handle_in("join_game", _message, socket) do
     user_id = socket.assigns.user
-    player_topic = socket.assigns.player_topic
+    player_topic = socket.topic
     push_msg = fn (payload) ->
       Endpoint.broadcast! player_topic, "event", payload
     end
@@ -34,7 +34,13 @@ defmodule Yggdrasil.PlayerChannel do
   end
 
   def handle_in("player_cmd", %{ "text" => text }, socket) do
-    Player.run_cmd(socket.assigns.user, Message.command(text))
-    {:noreply, socket}
+    case Parser.parse(text) do
+      {:ok, cmd} ->
+        Player.run_cmd(socket.assigns.user, cmd)
+        {:noreply, socket}
+      {:error, reason} ->
+        broadcast! socket, "error", Message.error(reason)
+        {:noreply, socket}
+    end
   end
 end
