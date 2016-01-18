@@ -3,9 +3,33 @@ elixir:
   - 1.2.0
 otp_release:
   - 18.2
+
+sudo: false
+
+cache:
+  directories:
+    - ./client/node_modules
+    - ./server/deps
+
 addons:
   postgresql: "9.4"
+
+before_install:
+  - nvm install 5.0
+  - nvm use 5.0
+  - export PATH=/usr/local/phantomjs-2.0.0/bin:$PATH
+  - "npm config set spin false"
+  - "npm install -g npm@^2"
+
+install:
+  - (cd server && mix local.hex --force && mix deps.get)
+  - (cd client && npm install -g bower && npm install && bower install)
+
 before_script:
-  - mix ecto.create
+  - (cd server && mix ecto.create)
+
+script:
+  - (cd server && mix test)
+  - (cd client && npm test)
 after_script:
-  - MIX_ENV=test mix coveralls.travis
+  - (cd server && MIX_ENV=test mix coveralls.travis)
