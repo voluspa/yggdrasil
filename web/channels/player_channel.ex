@@ -7,7 +7,6 @@ defmodule Yggdrasil.PlayerChannel do
 
   def join("player:" <> user_id = topic, _message, socket) do
     if socket.assigns.user == user_id do
-      socket = assign socket, :player_topic, topic
       {:ok, socket}
     else
       {:error, %{ error: "auth failure"} }
@@ -16,7 +15,7 @@ defmodule Yggdrasil.PlayerChannel do
 
   def handle_in("join_game", _message, socket) do
     user_id = socket.assigns.user
-    player_topic = socket.assigns.player_topic
+    player_topic = socket.topic
     push_msg = fn (payload) ->
       Endpoint.broadcast! player_topic, "event", payload
     end
