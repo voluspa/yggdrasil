@@ -16,10 +16,12 @@ App = Ember.Application.extend({
 loadInitializers(App, config.modulePrefix);
 
 // make bootstrap close the menu after click on an item.
+// jshint ignore: start
 $(document).on('click','.navbar-collapse.in',function(e) {
-  if( $(e.target).is('a') && $(e.target).attr('class') != 'dropdown-toggle' ) {
+  if( $(e.target).is('a') && $(e.target).attr('class') !== 'dropdown-toggle' ) {
     $(this).collapse('hide');
   }
 });
+// jshint ignore: end
 
 export default App;
