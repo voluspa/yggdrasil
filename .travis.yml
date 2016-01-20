@@ -33,3 +33,4 @@ script:
   - (cd client && npm test)
 after_script:
   - (cd server && MIX_ENV=test mix coveralls.travis)
+  - (cd client && cat coverage/lcov.data | ./node_modules/coveralls/bin/coveralls.js)
