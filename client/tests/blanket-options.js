@@ -10,7 +10,7 @@ var options = {
     lcovOptions: {
       outputFile: 'coverage/lcov.data',
       renamer: function(moduleName) {
-        var expression = /^APP_NAME/;
+        var expression = /^vilive/;
         return moduleName.replace(expression, 'app') + '.js';
       }
     },
