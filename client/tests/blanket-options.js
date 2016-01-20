@@ -3,7 +3,7 @@
 var options = {
   modulePrefix: 'vilive',
   filter: '//.*vilive/.*/',
-  antifilter: '//.*(tests|session-stores|template|initializers|services/session|services/ajax|helpers|controllers/object|controllers/array|app-version|utils/phoenix).*/',
+  antifilter: '//.*(tests|session-stores|template|initializers|services/session$|services/ajax|helpers|controllers/object|controllers/array|app-version|utils/phoenix|config/environment).*/',
   loaderExclusions: [],
   enableCoverage: true,
   cliOptions: {
