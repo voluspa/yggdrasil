@@ -51,7 +51,7 @@ defmodule Yggdrasil.Command.ParserBuilder do
 
     quote do
       def parse(text) do
-        do_parse_command(String.split(text))
+        do_parse_command(text |> String.downcase |> String.split)
       end
 
       unquote(rules)

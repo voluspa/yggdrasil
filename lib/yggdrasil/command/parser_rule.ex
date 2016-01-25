@@ -4,7 +4,12 @@ defmodule Yggdrasil.Command.ParseRule do
   alias Yggdrasil.Command.ParseRule
 
   def create(text, struct) when is_binary(text) do
-    segments = String.split(text) |> tag_segments()
+    segments =
+      text
+      |> String.downcase
+      |> String.split
+      |> tag_segments()
+
     %ParseRule{ cmd_segs: segments, cmd_struct: struct }
   end
 
