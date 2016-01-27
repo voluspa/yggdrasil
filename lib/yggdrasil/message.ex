@@ -13,16 +13,18 @@ defmodule Yggdrasil.Message do
     }
   end
 
-  def info(text) when is_binary(text) do
+  def error(:unknown_command_string) do
     %Message {
-      type: :info,
-      message: text
+      type: :error,
+      message: """
+        Unknown command.
+        """
     }
   end
 
-  def command(text) when is_binary(text) do
+  def info(text) when is_binary(text) do
     %Message {
-      type: :command,
+      type: :info,
       message: text
     }
   end

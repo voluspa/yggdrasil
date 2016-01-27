@@ -3,8 +3,10 @@ defmodule Yggdrasil.Command.MoveCommand do
 end
 
 defimpl Yggdrasil.Command, for: Yggdrasil.Command.MoveCommand do
-  def execute(player, cmd) do
-    Yggdrasil.Player.notify player, "You head towards #{cmd.exit}"
+  alias Yggdrasil.Message
+
+  def execute(cmd, player) do
+    Yggdrasil.Player.notify player, Message.info("You head towards #{cmd.exit}")
   end
 end
 

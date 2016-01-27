@@ -3,6 +3,7 @@ defmodule Yggdrasil.PlayerChannel do
   alias Yggdrasil.Player
   alias Yggdrasil.Endpoint
   alias Yggdrasil.Message
+  alias Yggdrasil.Command.Parser
   require Logger
 
   def join("player:" <> user_id = topic, _message, socket) do
@@ -33,7 +34,12 @@ defmodule Yggdrasil.PlayerChannel do
   end
 
   def handle_in("player_cmd", %{ "text" => text }, socket) do
-    Player.run_cmd(socket.assigns.user, Message.command(text))
-    {:noreply, socket}
+    case Parser.parse(text) do
+      {:ok, cmd} ->
+        Player.run_cmd(socket.assigns.user, cmd)
+        {:noreply, socket}
+      {:error, reason} ->
+        {:reply, {:error, Message.error(reason)},  socket}
+    end
   end
 end

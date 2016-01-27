@@ -1,4 +1,4 @@
 defprotocol Yggdrasil.Command do
-  def execute(player, cmd)
+  def execute(cmd, player)
 end
 
