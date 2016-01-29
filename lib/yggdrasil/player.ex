@@ -14,7 +14,15 @@ defmodule Yggdrasil.Player do
   end
 
   def run_cmd(user_id, cmd) do
-    Command.execute cmd, user_id
+    # horrible terrible temporary implementation
+    # room would eventually do all of this
+    ctxt = %Yggdrasil.Room.Context{ player: user_id }
+    ctxt = Command.execute cmd, ctxt
+
+    Enum.each ctxt.actions,
+      fn {:notify, player, message} ->
+        notify(player, message)
+      end
   end
 
   def notify(user_id, msg = %Message{}) do

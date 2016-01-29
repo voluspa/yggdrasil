@@ -39,7 +39,8 @@ defmodule Yggdrasil.PlayerChannel do
         Player.run_cmd(socket.assigns.user, cmd)
         {:noreply, socket}
       {:error, reason} ->
-        {:reply, {:error, Message.error(reason)},  socket}
+        broadcast! socket, "error", Message.error(reason)
+        {:noreply, socket}
     end
   end
 end
