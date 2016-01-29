@@ -35,6 +35,7 @@ defmodule PlayerChannelTest do
     socket = join_game user_id
 
     push socket, "player_cmd", %{ "text" => "move east" }
+    assert_push "event", %Message{}
   end
 
   test "it sends an 'error' event if the command fails to parse" do
@@ -43,7 +44,7 @@ defmodule PlayerChannelTest do
     socket = join_game user_id
 
     push socket, "player_cmd", %{ "text" => "I hope this doesn't work" }
-    assert_push "event", %Message{}
+    assert_push "error", %Message{}
   end
 
   defp join_channel(user_id, topic \\ nil)
