@@ -20,6 +20,7 @@ defmodule Yggdrasil.User do
     model
     |> cast(params, ~w(username password password_confirmation), ~w())
     |> update_change(:username, &String.downcase/1)
+    |> validate_no_spaces(:username)
     |> unique_constraint(:username)
     |> validate_length(:password, min: 4)
     |> validate_length(:password_confirmation, min: 4)
@@ -38,5 +39,17 @@ defmodule Yggdrasil.User do
   def hash_password(changeset = %{:valid? => true}) do
     changeset
       |> put_change(:hash, hashpwsalt(changeset.params["password"]))
+  end
+
+  def validate_no_spaces(changeset = %{:valid? => false}, field) do
+    changeset
+  end
+  def validate_no_spaces(changeset = %{:valid? => true}, field) do
+    value = changeset.changes[field]
+    if String.contains?(value, " ") do 
+      add_error changeset, field, "can't contain spaces"
+    else
+      changeset
+    end
   end
 end
