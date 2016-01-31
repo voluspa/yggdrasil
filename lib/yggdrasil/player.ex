@@ -3,6 +3,7 @@ defmodule Yggdrasil.Player do
   alias Yggdrasil.Message
   alias Yggdrasil.Player.Supervisor
   alias Yggdrasil.Player.Registry
+  alias Yggdrasil.Command
 
   def start_link(user_id, owner_pid, push_msg) do
     GenServer.start_link __MODULE__, [user_id, owner_pid, push_msg]
@@ -12,9 +13,16 @@ defmodule Yggdrasil.Player do
     Supervisor.add_player user_id, [owner_pid, push_msg]
   end
 
-  def run_cmd(user_id, cmd = %Message{type: :command}) do
-    player_pid = Registry.get_player user_id
-    GenServer.cast(player_pid, {:run_cmd, cmd})
+  def run_cmd(user_id, cmd) do
+    # horrible terrible temporary implementation
+    # room would eventually do all of this
+    ctxt = %Yggdrasil.Room.Context{ player: user_id }
+    ctxt = Command.execute cmd, ctxt
+
+    Enum.each ctxt.actions,
+      fn {:notify, player, message} ->
+        notify(player, message)
+      end
   end
 
   def notify(user_id, msg = %Message{}) do
@@ -37,11 +45,6 @@ defmodule Yggdrasil.Player do
       {:error, reason} ->
         {:stop, reason}
     end
-  end
-
-  def handle_cast({:run_cmd, cmd}, state) do
-    state.push_msg.(cmd)
-    {:noreply, state}
   end
 
   def handle_cast({:notify, msg}, state) do
