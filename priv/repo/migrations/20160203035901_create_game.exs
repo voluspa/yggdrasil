@@ -8,6 +8,7 @@ defmodule Yggdrasil.Repo.Migrations.CreateGame do
 
       timestamps
     end
+    create unique_index(:games, [:name])
 
   end
 end

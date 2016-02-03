@@ -11,6 +11,7 @@ defmodule Yggdrasil.Repo.Migrations.CreateCharacter do
     end
     create index(:characters, [:user_id])
     create index(:characters, [:game_id])
+    create unique_index(:characters, [:name, :game_id])
 
   end
 end
