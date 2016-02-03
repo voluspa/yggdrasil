@@ -10,8 +10,6 @@ defmodule Yggdrasil.User do
     field :password, :string, virtual: true # not part of table
     field :password_confirmation, :string, virtual: true # not part of table
 
-    has_many :characters, Character
-
     timestamps
   end
 

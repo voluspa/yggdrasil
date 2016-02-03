@@ -5,8 +5,6 @@ defmodule Yggdrasil.Game do
     field :name, :string
     field :description, :string
 
-    has_many :characters, Character
-
     timestamps
   end
 
