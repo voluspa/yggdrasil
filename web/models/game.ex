@@ -21,5 +21,7 @@ defmodule Yggdrasil.Game do
     model
     |> cast(params, @required_fields, @optional_fields)
     |> unique_constraint(:name)
+    |> validate_length(:name, min: 3)
+    |> validate_length(:description, min: 3)
   end
 end
