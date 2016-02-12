@@ -37,7 +37,7 @@ defmodule Yggdrasil.Player do
         monitor_ref = Process.monitor channel_pid
         push_msg.(Message.info("Welcome to the game"))
         {:ok, %{
-          user: char_id,
+          character: char_id,
           channel: channel_pid,
           monitor: monitor_ref,
           push_msg: push_msg
