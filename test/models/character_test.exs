@@ -24,8 +24,9 @@ defmodule Yggdrasil.CharacterTest do
   @invalid_length_msg "should be at least %{count} character(s)"
   @missing_assoc_msg "does not exist"
   @unique_msg "has already been taken"
+  @required_msg "can't be blank"
 
-  defp do_setup do
+  setup _context do
     {:ok, user1} = %User{}
     |> User.create_changeset(@user1)
     |> Repo.insert
@@ -42,14 +43,12 @@ defmodule Yggdrasil.CharacterTest do
     |> Game.changeset(@game2)
     |> Repo.insert
 
-    %{user1: user1, user2: user2, game1: game1, game2: game2}
+    {:ok, %{user1: user1, user2: user2, game1: game1, game2: game2}}
   end
 
-  test "valid character produces a valid changeset" do
-    fixture = do_setup
-
-    user = fixture.user1
-    game = fixture.game1
+  test "valid character produces a valid changeset", ctx do
+    user = ctx.user1
+    game = ctx.game1
 
     valid_character = %{@character | user_id: user.id, game_id: game.id}
 
@@ -57,11 +56,9 @@ defmodule Yggdrasil.CharacterTest do
     assert character.valid? == true
   end
 
-  test "valid character changset with valid references inserts" do
-    fixture = do_setup
-
-    user = fixture.user1
-    game = fixture.game1
+  test "valid character changset with valid references inserts", ctx do
+    user = ctx.user1
+    game = ctx.game1
 
     valid_character = %{@character | user_id: user.id, game_id: game.id}
 
@@ -76,10 +73,24 @@ defmodule Yggdrasil.CharacterTest do
     assert character.valid? == false
   end
 
-  test "valid character changset assoc_constraint fires on invalid game" do
-    fixture = do_setup
+  test "character changset requires game_id" do
+    valid_character = %{@character | user_id: 0}
 
-    user = fixture.user1
+    character = Character.changeset(%Character{}, valid_character)
+    assert character.valid? == false
+    assert {:game_id, @required_msg} in character.errors
+  end
+
+  test "character changset requires user_id" do
+    valid_character = %{@character | game_id: 0}
+
+    character = Character.changeset(%Character{}, valid_character)
+    assert character.valid? == false 
+    assert {:user_id, @required_msg} in character.errors
+  end
+
+  test "valid character changset assoc_constraint fires on invalid game", ctx do
+    user = ctx.user1
 
     valid_character = %{@character | user_id: user.id, game_id: 0}
 
@@ -90,10 +101,8 @@ defmodule Yggdrasil.CharacterTest do
     assert {:game, @missing_assoc_msg} in changeset.errors
   end
 
-  test "valid character changset assoc_constraint fires on invalid user" do
-    fixture = do_setup
-
-    game = fixture.game1
+  test "valid character changset assoc_constraint fires on invalid user", ctx do
+    game = ctx.game1
 
     valid_character = %{@character | user_id: 0, game_id: game.id}
 
@@ -104,30 +113,24 @@ defmodule Yggdrasil.CharacterTest do
     assert {:user, @missing_assoc_msg} in changeset.errors
   end
 
-  test "Same character name can be used if the game_id is different with the same user_id" do
-    fixture = do_setup
-
-    valid_character1 = %{@character | user_id: fixture.user1.id, game_id: fixture.game1.id}
-    valid_character2 = %{@character | user_id: fixture.user1.id, game_id: fixture.game2.id}
+  test "same character name can be used if the game_id is different with the same user_id", ctx do
+    valid_character1 = %{@character | user_id: ctx.user1.id, game_id: ctx.game1.id}
+    valid_character2 = %{@character | user_id: ctx.user1.id, game_id: ctx.game2.id}
 
     assert {:ok, _char} = %Character{} |> Character.changeset(valid_character1) |> Repo.insert
     assert {:ok, _char} = %Character{} |> Character.changeset(valid_character2) |> Repo.insert
   end
 
-  test "Same character name can be used if the game_id is different and the user_id" do
-    fixture = do_setup
-
-    valid_character1 = %{@character | user_id: fixture.user1.id, game_id: fixture.game1.id}
-    valid_character2 = %{@character | user_id: fixture.user2.id, game_id: fixture.game2.id}
+  test "same character name can be used if the game_id is different and the user_id", ctx do
+    valid_character1 = %{@character | user_id: ctx.user1.id, game_id: ctx.game1.id}
+    valid_character2 = %{@character | user_id: ctx.user2.id, game_id: ctx.game2.id}
 
     assert {:ok, _char} = %Character{} |> Character.changeset(valid_character1) |> Repo.insert
     assert {:ok, _char} = %Character{} |> Character.changeset(valid_character2) |> Repo.insert
   end
 
-  test "Same character name fails if game_id is the same with same user_id" do
-    fixture = do_setup
-
-    valid_character = %{@character | user_id: fixture.user1.id, game_id: fixture.game1.id}
+  test "same character name fails if game_id is the same with same user_id", ctx do
+    valid_character = %{@character | user_id: ctx.user1.id, game_id: ctx.game1.id}
 
     assert {:ok, _char} = %Character{} |> Character.changeset(valid_character) |> Repo.insert
     assert {:error, changeset} = %Character{} |> Character.changeset(valid_character) |> Repo.insert
@@ -135,11 +138,9 @@ defmodule Yggdrasil.CharacterTest do
     assert {:name, @unique_msg} in changeset.errors
   end
 
-  test "Same character name fails if game_id is the same with different user_ids" do
-    fixture = do_setup
-
-    valid_character1 = %{@character | user_id: fixture.user1.id, game_id: fixture.game1.id}
-    valid_character2 = %{@character | user_id: fixture.user2.id, game_id: fixture.game1.id}
+  test "same character name fails if game_id is the same with different user_ids", ctx do
+    valid_character1 = %{@character | user_id: ctx.user1.id, game_id: ctx.game1.id}
+    valid_character2 = %{@character | user_id: ctx.user2.id, game_id: ctx.game1.id}
 
     assert {:ok, _char} = %Character{} |> Character.changeset(valid_character1) |> Repo.insert
     assert {:error, changeset} = %Character{} |> Character.changeset(valid_character2) |> Repo.insert
