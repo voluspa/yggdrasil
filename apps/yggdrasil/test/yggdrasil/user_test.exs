@@ -1,6 +1,6 @@
 defmodule Yggdrasil.UserTest do
-  use YggdrasilWeb.ModelCase
-
+  use ExUnit.Case, async: false
+  alias Yggdrasil.Repo
   alias Yggdrasil.User
   alias Comeonin.Bcrypt
 
@@ -24,6 +24,14 @@ defmodule Yggdrasil.UserTest do
   @doesntmatch_msg "does not match confirmation"
   @unique_msg "has already been taken"
   @invalid_length_msg "should be at least %{count} character(s)"
+
+  setup tags do
+    unless tags[:async] do
+      Ecto.Adapters.SQL.restart_test_transaction(Yggdrasil.Repo, [])
+    end
+
+    :ok
+  end
 
   # -- helpers
 

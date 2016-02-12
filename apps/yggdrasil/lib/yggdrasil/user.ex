@@ -1,6 +1,6 @@
 defmodule Yggdrasil.User do
-  use YggdrasilWeb.Web, :model
-
+  use Ecto.Schema
+  import Ecto.Changeset
   import Comeonin.Bcrypt, only: [hashpwsalt: 1]
   require Logger
 
