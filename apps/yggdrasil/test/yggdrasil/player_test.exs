@@ -4,21 +4,21 @@ defmodule PlayerTest do
   alias Yggdrasil.Player.Registry
 
   test "it registers the user as online when it starts" do
-    user_id = 1
-    {:ok, _pid} = Player.start_link user_id, self, fn (msg) ->
+    char_id = 1
+    {:ok, _pid} = Player.start_link char_id, self, fn (msg) ->
       msg
     end
 
-    assert Registry.is_online user_id
+    assert Registry.is_online char_id
   end
 
   test "it uses push_msg/1 to push a welcome message" do
-    user_id = 2
+    char_id = 2
 
     # using an agent to store messages
     {:ok, agent} = Agent.start_link(fn -> [] end)
 
-    {:ok, _pid} = Player.start_link user_id, self, fn (msg) ->
+    {:ok, _pid} = Player.start_link char_id, self, fn (msg) ->
       Agent.update agent, fn (msgs) -> [msg | msgs] end
     end
 

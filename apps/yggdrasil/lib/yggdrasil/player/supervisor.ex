@@ -13,7 +13,7 @@ defmodule Yggdrasil.Player.Supervisor do
     supervise(children, strategy: :simple_one_for_one)
   end
 
-  def add_player(user_id, args) do
-    Supervisor.start_child(__MODULE__, [user_id | args])
+  def add_player(char_id, args) do
+    Supervisor.start_child(__MODULE__, [char_id | args])
   end
 end
