@@ -38,7 +38,7 @@ defmodule Yggdrasil.Player.Registry do
     table_id = :ets.new @registry_ets, [:named_table, :set]
     {:ok, %{
       :table_id => table_id,
-      :mon2user => %{ }
+      :mon2character => %{ }
     }}
   end
 
@@ -47,7 +47,7 @@ defmodule Yggdrasil.Player.Registry do
       [] ->
         :ets.insert @registry_ets, {char_id, player_pid}
         monitor = Process.monitor player_pid
-        {:reply, :ok, add_mon2user(state, monitor, char_id)}
+        {:reply, :ok, add_mon2character(state, monitor, char_id)}
       [_] ->
         {:reply, {:error, :already_registered}, state}
     end
@@ -62,17 +62,17 @@ defmodule Yggdrasil.Player.Registry do
   end
 
   def handle_info({:DOWN, monitor, :process, _pid, _reason}, state) do
-    :ets.delete @registry_ets, state.mon2user[monitor]
-    {:noreply, remove_mon2user(state, monitor)}
+    :ets.delete @registry_ets, state.mon2character[monitor]
+    {:noreply, remove_mon2character(state, monitor)}
   end
 
 
-  defp add_mon2user(state, monitor, char_id) do
-    %{ state | :mon2user => Map.put(state.mon2user, monitor, char_id)}
+  defp add_mon2character(state, monitor, char_id) do
+    %{ state | :mon2character => Map.put(state.mon2character, monitor, char_id)}
   end
 
-  defp remove_mon2user(state, monitor) do
-    %{ state | :mon2user => Map.delete(state.mon2user, monitor)}
+  defp remove_mon2character(state, monitor) do
+    %{ state | :mon2character => Map.delete(state.mon2character, monitor)}
   end
 
   defp do_is_online(char_id) do
