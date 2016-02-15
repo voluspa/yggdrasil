@@ -5,7 +5,5 @@ otp_release:
   - 18.2
 addons:
   postgresql: "9.4"
-before_script:
-  - mix ecto.create -r Yggdrasil.Repo
 after_script:
   - MIX_ENV=test mix coveralls.travis
