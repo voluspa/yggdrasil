@@ -23,8 +23,8 @@ defmodule YggdrasilWeb.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {YggdrasilWeb, []},
-     applications: [:phoenix, :phoenix_html, :cowboy, :logger, :gettext,
-                    :yggdrasil]]
+     applications: [:phoenix, :phoenix_ecto, :phoenix_html,
+                    :cowboy, :logger, :gettext, :yggdrasil]]
   end
 
   # Specifies which paths to compile per environment.
@@ -37,6 +37,7 @@ defmodule YggdrasilWeb.Mixfile do
   defp deps do
     [{:yggdrasil, in_umbrella: true},
      {:phoenix, "~> 1.1.1"},
+     {:phoenix_ecto, "~> 2.0"},
      {:phoenix_html, "~> 2.3"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:gettext, "~> 0.9"},
