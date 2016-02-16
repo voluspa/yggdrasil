@@ -23,7 +23,7 @@ defmodule YggdrasilWeb.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {YggdrasilWeb, []},
-     applications: [:phoenix, :phoenix_ecto, :phoenix_html,
+     applications: [:phoenix, :postgrex, :phoenix_ecto, :phoenix_html,
                     :cowboy, :logger, :gettext, :yggdrasil]]
   end
 
@@ -46,6 +46,7 @@ defmodule YggdrasilWeb.Mixfile do
      {:excoveralls, "~> 0.4.3"},
      {:ja_serializer, "~> 0.6.1"},
      {:guardian, "~> 0.9.0"},
+     {:postgrex, ">= 0.0.0"},
      {:cors_plug, "~> 0.1.4"}]
   end
 
