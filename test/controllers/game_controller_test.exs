@@ -1,6 +1,5 @@
 defmodule Yggdrasil.GameControllerTest do
   use Yggdrasil.ConnCase
-  require IEx
 
   alias Yggdrasil.{Repo, User, Game}
 
@@ -45,9 +44,8 @@ defmodule Yggdrasil.GameControllerTest do
       {id, _remainder} = Integer.parse g["id"]
 
       game = Map.put attrs, "id", id
-      game = for {key, val} <- game, into: %{}, do: {String.to_atom(key), val}
+      for {key, val} <- game, into: %{}, do: {String.to_atom(key), val}
     end
-
 
     db_games = Enum.map games, fn g ->
       g
@@ -55,7 +53,6 @@ defmodule Yggdrasil.GameControllerTest do
       |> Map.drop([:inserted_at, :updated_at, :__meta__])
     end
 
-    IEx.pry
     db_games == api_games
   end
 
