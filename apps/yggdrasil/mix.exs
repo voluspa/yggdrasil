@@ -11,6 +11,8 @@ defmodule Yggdrasil.Mixfile do
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     test_coverage: [tool: ExCoveralls],
+     aliases: aliases,
      deps: deps]
   end
 
@@ -38,7 +40,19 @@ defmodule Yggdrasil.Mixfile do
   defp deps do
     [
       {:postgrex, ">= 0.0.0"},
-      {:ecto, "~> 1.1"}
+      {:ecto, "~> 1.1"},
+      {:excoveralls, "~>0.4.3"}
     ]
+  end
+
+  # Aliases are shortcut or tasks specific to the current project.
+  # For example, to create, migrate and run the seeds file at once:
+  #
+  #     $ mix ecto.setup
+  #
+  # See the documentation for `Mix` for more info on aliases.
+  defp aliases do
+    ["ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+     "ecto.reset": ["ecto.drop", "ecto.setup"]]
   end
 end

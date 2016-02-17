@@ -5,6 +5,7 @@ defmodule YggdrasilUmbrella.Mixfile do
     [apps_path: "apps",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     test_coverage: [tool: ExCoveralls],
      deps: deps]
   end
 
@@ -21,6 +22,8 @@ defmodule YggdrasilUmbrella.Mixfile do
   # Dependencies listed here are available only for this project
   # and cannot be accessed from applications inside the apps folder
   defp deps do
-    []
+    [
+     {:excoveralls, github: "copenhas/excoveralls", branch: "fix.umbrella.app.paths", override: true}
+    ]
   end
 end
