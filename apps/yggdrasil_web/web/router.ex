@@ -37,6 +37,6 @@ defmodule YggdrasilWeb.Router do
     pipe_through :api
     pipe_through :guardian
 
-    # not used at the moment, but setup
+    get "/games", GameController, :index
   end
 end
