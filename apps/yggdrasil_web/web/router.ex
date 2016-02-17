@@ -38,5 +38,10 @@ defmodule YggdrasilWeb.Router do
     pipe_through :guardian
 
     get "/games", GameController, :index
+
+    get "/characters", CharacterController, :index
+    get "/characters/:char_id", CharacterController, :show
+    post "/characters", CharacterController, :create
+    delete "/characters/:char_id", CharacterController, :delete
   end
 end
