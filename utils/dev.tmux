@@ -12,7 +12,7 @@ if [ $? != 0 ] ; then
     tmux send-keys -t $NAME:1 'vim' C-m
 
     tmux new-window -n phoenix -t $NAME
-    tmux send-keys -t $NAME:2 'mix deps.get && mix phoenix.server' C-m
+    tmux send-keys -t $NAME:2 'mix phoenix.server' C-m
 
     tmux new-window -n postgres -t $NAME
     tmux send-keys -t $NAME:3 'postgres -D db' C-m

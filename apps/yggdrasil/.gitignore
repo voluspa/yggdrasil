@@ -1,8 +1,5 @@
 /_build
 /cover
-apps/*/cover
 /deps
 erl_crash.dump
 *.ez
-/db
-node_modules
