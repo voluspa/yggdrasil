@@ -1,10 +1,9 @@
 defmodule YggdrasilWeb.PlayerChannel do
   use YggdrasilWeb.Web, :channel
 
-  import Ecto.Query
-
   alias YggdrasilWeb.Endpoint
   alias Yggdrasil.{Player, Message, Command.Parser, Character}
+
   require Logger
 
   def join("player:" <> char_id = _topic, _message, socket) do
