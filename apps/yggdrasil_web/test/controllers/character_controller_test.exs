@@ -1,6 +1,7 @@
 defmodule YggdrasilWeb.CharacterControllerTest do
   use YggdrasilWeb.ConnCase
 
+  alias YggdrasilWeb.CharacterView
   alias Yggdrasil.{Repo, User, Game, Character}
 
   @user %{username: "tester",
@@ -29,7 +30,7 @@ defmodule YggdrasilWeb.CharacterControllerTest do
       game
     end
 
-    chars = Enum.map games, fn g ->
+    chars = Enum.flat_map games, fn g ->
       Enum.map 1..2, fn n ->
         char = Character.changeset(%Character{}, %{:name => "char #{g.name} #{n}",
                                                    :game_id => g.id,
@@ -48,16 +49,48 @@ defmodule YggdrasilWeb.CharacterControllerTest do
     {:ok, %{conn: conn, chars: chars, games: games, user: user, token: token}}
   end
 
-# test "get character by id", ctx do
-#   path = api_character_path(conn, :show, ctx.user.id)
+  test "get /api/characters/char_id returns the correct character", ctx do
+    char = Enum.at ctx.chars, 0
 
-#   conn = ctx.conn
-#   |> put_req_header("authorization", ctx.token)
-#   |> get(path)
+    char_json = CharacterView.render("show.json", conn: %{}, data: char)
+    |> Poison.encode!
+    |> Poison.decode!
 
-#   assert response_content_type(conn, :json) == @json_api_content_type_utf8
-#   resp = response(conn, :ok)
+    path = api_character_path(conn, :show, char.id)
 
-#   assert resp == :ok
-# end
+    conn = ctx.conn
+    |> put_req_header("authorization", ctx.token)
+    |> get(path)
+
+    assert response_content_type(conn, :json) == @json_api_content_type_utf8
+    resp = Poison.decode! response(conn, :ok)
+
+    assert resp == char_json
+  end
+
+  test "get /characters returns all characters for user", ctx do
+    # ensure some order to the list when comparing below.
+    chars = Enum.sort_by ctx.chars, fn c -> c.id end
+
+    # this looks weird but the view returns a map of the data to be encoded
+    # however it still has atoms as keys, where as the resp below decoded
+    # has strings as keys so by encoding and decoding ew have the same map
+    # decoding the response will have
+    chars_decoded = CharacterView.render("index.json", conn: %{}, data: chars)
+    |> Poison.encode!
+    |> Poison.decode!
+
+    path = api_character_path(conn, :index)
+
+    conn = ctx.conn
+    |> put_req_header("authorization", ctx.token)
+    |> get(path)
+
+    assert response_content_type(conn, :json) == @json_api_content_type_utf8
+    resp = Poison.decode! response(conn, :ok)
+    # sort by id here as well.
+    resp = %{ resp | "data" => Enum.sort_by(resp["data"], fn d -> d["id"] end) }
+
+    assert chars_decoded == resp
+  end
 end
