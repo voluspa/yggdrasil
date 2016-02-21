@@ -1,5 +1,5 @@
-defmodule Yggdrasil.GameController do
-  use Yggdrasil.Web, :controller
+defmodule YggdrasilWeb.GameController do
+  use YggdrasilWeb.Web, :controller
 
   alias Yggdrasil.Game
 

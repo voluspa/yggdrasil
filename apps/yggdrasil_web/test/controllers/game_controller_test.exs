@@ -1,5 +1,5 @@
-defmodule Yggdrasil.GameControllerTest do
-  use Yggdrasil.ConnCase
+defmodule YggdrasilWeb.GameControllerTest do
+  use YggdrasilWeb.ConnCase
 
   alias Yggdrasil.{Repo, User, Game}
 

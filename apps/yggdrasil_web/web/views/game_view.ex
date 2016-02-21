@@ -1,5 +1,5 @@
-defmodule Yggdrasil.GameView do
-  use Yggdrasil.Web, :view
+defmodule YggdrasilWeb.GameView do
+  use YggdrasilWeb.Web, :view
   use JaSerializer.PhoenixView
 
   attributes [:name, :description]

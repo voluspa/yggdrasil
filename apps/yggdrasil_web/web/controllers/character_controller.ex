@@ -1,5 +1,5 @@
-defmodule Yggdrasil.CharacterController do
-  use Yggdrasil.Web, :controller
+defmodule YggdrasilWeb.CharacterController do
+  use YggdrasilWeb.Web, :controller
 
   alias Yggdrasil.Character
 
