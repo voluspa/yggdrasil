@@ -45,7 +45,7 @@ defmodule YggdrasilWeb.Mixfile do
      {:guardian, "~> 0.9.0"},
      {:postgrex, ">= 0.0.0"},
      {:cors_plug, "~> 0.1.4"},
-     {:excoveralls, "~>0.4.3"}
+     {:excoveralls, "~>0.5.1"}
    ]
   end
 end
