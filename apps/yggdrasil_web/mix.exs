@@ -42,7 +42,7 @@ defmodule YggdrasilWeb.Mixfile do
      {:cowboy, "~> 1.0"},
      {:comeonin, "~> 2.0"},
      {:ja_serializer, "~> 0.6.1"},
-     {:guardian, "~> 0.9.0"},
+     {:guardian, "~> 0.10.1"},
      {:postgrex, ">= 0.0.0"},
      {:cors_plug, "~> 0.1.4"},
      {:excoveralls, "~>0.5.1"}
