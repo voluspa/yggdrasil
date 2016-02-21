@@ -23,7 +23,7 @@ defmodule YggdrasilUmbrella.Mixfile do
   # and cannot be accessed from applications inside the apps folder
   defp deps do
     [
-     {:excoveralls, github: "copenhas/excoveralls", branch: "fix.umbrella.app.paths", override: true}
+     {:excoveralls, "~> 0.5.1"}
     ]
   end
 end
