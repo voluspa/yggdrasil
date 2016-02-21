@@ -1,7 +1,7 @@
 defmodule Yggdrasil.GameTest do
-  use Yggdrasil.ModelCase
+  use ExUnit.Case, async: false
 
-  alias Yggdrasil.Game
+  alias Yggdrasil.{Repo, Game}
 
   @min_len 3
   @valid_game                 %{name: "abcdef", description: "abcdefghi"}
@@ -11,6 +11,14 @@ defmodule Yggdrasil.GameTest do
 
   @invalid_length_msg "should be at least %{count} character(s)"
   @unique_msg "has already been taken"
+
+  setup tags do
+    unless tags[:async] do
+      Ecto.Adapters.SQL.restart_test_transaction(Yggdrasil.Repo, [])
+    end
+
+    :ok
+  end
 
   test "valid game produces valid changeset" do
     game = Game.changeset %Game{}, @valid_game

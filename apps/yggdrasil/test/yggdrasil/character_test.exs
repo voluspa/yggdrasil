@@ -1,9 +1,7 @@
 defmodule Yggdrasil.CharacterTest do
-  use Yggdrasil.ModelCase
+  use ExUnit.Case, async: false
 
-  alias Yggdrasil.User
-  alias Yggdrasil.Game
-  alias Yggdrasil.Character
+  alias Yggdrasil.{Repo, Game, User, Character}
 
   @min_len 3
 
@@ -25,6 +23,14 @@ defmodule Yggdrasil.CharacterTest do
   @missing_assoc_msg "does not exist"
   @unique_msg "has already been taken"
   @required_msg "can't be blank"
+
+  setup tags do
+    unless tags[:async] do
+      Ecto.Adapters.SQL.restart_test_transaction(Yggdrasil.Repo, [])
+    end
+
+    :ok
+  end
 
   setup _context do
     {:ok, user1} = %User{}

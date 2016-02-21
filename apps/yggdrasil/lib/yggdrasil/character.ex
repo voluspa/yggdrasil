@@ -1,5 +1,6 @@
 defmodule Yggdrasil.Character do
-  use Yggdrasil.Web, :model
+  use Ecto.Schema
+  import Ecto.Changeset
 
   schema "characters" do
     field :name, :string
