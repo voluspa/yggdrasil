@@ -85,7 +85,7 @@ defmodule YggdrasilWeb.RegistrationControllerTest do
 
     user_id = res_user["data"]["id"]
 
-    assert Guardian.serializer.from_token(claims["sub"]) == Repo.get(User, user_id)
+    assert Guardian.serializer.from_token(claims["sub"]) == {:ok, Repo.get(User, user_id)}
   end
 
   test "user registration with password mismatch fails", %{conn: conn} do

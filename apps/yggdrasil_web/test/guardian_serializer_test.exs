@@ -26,8 +26,8 @@ defmodule YggdrasilWeb.GuardianSerializerTest do
 
   test "from_token with correct user_id returns user of that id" do
     user = insert_user
-
-    assert user.id == GuardianSerializer.from_token("user:#{user.id}").id
+    {:ok, token_user} = GuardianSerializer.from_token("user:#{user.id}")
+    assert user.id == token_user.id
   end
 
   test "from_token with nil returns expected error" do

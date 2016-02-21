@@ -1,13 +1,11 @@
 defmodule YggdrasilWeb.CharacterController do
   use YggdrasilWeb.Web, :controller
+  use Guardian.Phoenix.Controller
 
   alias Yggdrasil.Character
 
-  def index(conn, %{"filter" => %{"user_id" => user_id}}) do
-    # this should not happen, but could easily
-    # probably don't need to crash but rather return an error
-    ^user_id = conn.assigns.user
-
+  def index(conn, _params, user, _claims) do
+    user_id = user.id
     chars = Repo.all from c in Character,
                     where: c.user_id == ^user_id,
                     select: c
@@ -15,8 +13,8 @@ defmodule YggdrasilWeb.CharacterController do
     render conn, :show, data: chars
   end
 
-  def show(conn, %{"char_id" => char_id}) do
-    user_id = conn.assigns.user
+  def show(conn, %{"char_id" => char_id}, user, _claims) do
+    user_id = user.id
 
     # returns nil if not found
     # need to sort out what we want here.
@@ -27,7 +25,8 @@ defmodule YggdrasilWeb.CharacterController do
     render conn, :show, data: char
   end
 
-  def create(conn, %{"data" => %{"attributes" => attributes}}) do
+  def create(conn, %{"data" => %{"attributes" => attributes}}, user, _claims) do
+    attributes = Map.put attributes, :user_id, user.id
     char = Character.changeset(%Character{}, attributes)
 
     case Repo.insert(char) do
@@ -38,8 +37,8 @@ defmodule YggdrasilWeb.CharacterController do
     end
   end
 
-  def delete(conn, %{"char_id" => char_id}) do
-    user_id = conn.assigns.user
+  def delete(conn, %{"char_id" => char_id}, user, _claims) do
+    user_id = user.id
 
     # returns nil if not found
     # need to sort out what we want here.

@@ -10,6 +10,7 @@ defmodule YggdrasilWeb.Router do
   pipeline :guardian do
     plug Guardian.Plug.VerifyHeader
     plug Guardian.Plug.EnsureAuthenticated, handler: YggdrasilWeb.GuardianErrorHandler
+    plug Guardian.Plug.LoadResource
   end
 
   @docs """

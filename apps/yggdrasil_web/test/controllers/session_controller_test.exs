@@ -80,7 +80,7 @@ defmodule YggdrasilWeb.SessionControllerTest do
 
     # user above contains some extra keys from the creation
     # so need to test against a fresh db record.
-    assert Guardian.serializer.from_token(claims["sub"]) == Repo.get(User, user.id) 
+    assert Guardian.serializer.from_token(claims["sub"]) == {:ok, Repo.get(User, user.id)}
   end
 
   test "user login correct username but bad password returns error", %{conn: conn} do
