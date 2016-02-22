@@ -26,7 +26,7 @@ defmodule YggdrasilWeb.CharacterController do
   end
 
   def create(conn, %{"data" => %{"attributes" => attributes}}, user, _claims) do
-    attributes = Map.put attributes, :user_id, user.id
+    attributes = Map.put attributes, "user_id", user.id
     char = Character.changeset(%Character{}, attributes)
 
     case Repo.insert(char) do
@@ -50,8 +50,7 @@ defmodule YggdrasilWeb.CharacterController do
       {:ok, _char} -> 
         # http://jsonapi.org/format/#crud-deleting
         conn
-        |> put_status(204)
-        |> send_resp
+        |> send_resp(:no_content, "")
       {:error, err_changeset} ->
         render conn, :errors, data: err_changeset
     end
