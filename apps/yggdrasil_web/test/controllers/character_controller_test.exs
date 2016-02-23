@@ -11,6 +11,8 @@ defmodule YggdrasilWeb.CharacterControllerTest do
   @json_api_content_type "application/vnd.api+json"
   @json_api_content_type_utf8 @json_api_content_type <> "; charset=utf-8"
 
+  @invalid_charater "Invalid Character"
+
   setup %{conn: conn} do
     # need a user to gen a token for api
     {:ok, user} = %User{}
@@ -81,7 +83,7 @@ defmodule YggdrasilWeb.CharacterControllerTest do
     assert resp == char_json
   end
 
-  test "get /characters returns all characters for the user the token specifies", ctx do
+  test "get /characters returns all characters for the user in the token provided", ctx do
     user = Enum.at ctx.users, 0 # first user has the token
     chars = Enum.sort_by user.chars, fn c -> c.id end
 
@@ -108,7 +110,7 @@ defmodule YggdrasilWeb.CharacterControllerTest do
     assert chars_decoded == resp
   end
 
-  test "post /characters creates a character for a given user", ctx do
+  test "post /characters creates a character for the given user in the token provided", ctx do
     user = Enum.at ctx.users, 0
     game = Enum.at ctx.games, 0
     char = %{"name" => "unique_tester", "game-id" => game.id} # server fills in user_id
@@ -129,7 +131,29 @@ defmodule YggdrasilWeb.CharacterControllerTest do
     # sort by id here as well.
   end
 
-  test "delete /characters/char_id removes a character for a given user", ctx do
+  test "post /characters creates a character for the given user in the token regardless of the user_id provided", ctx do
+    user = Enum.at ctx.users, 0
+    user2 = Enum.at ctx.users, 1
+    game = Enum.at ctx.games, 0
+    char = %{"name" => "unique_tester", "game-id" => game.id, "user-id" => user2.model.id} # server fills in user_id
+
+    json_api = %{data: %{type: "characters", attributes: char}}
+    json = Poison.encode! json_api 
+
+    path = api_character_path(conn, :create)
+
+    conn = ctx.conn
+    |> put_req_header("authorization", user.token)
+    |> post(path, json)
+
+    assert response_content_type(conn, :json) == @json_api_content_type_utf8
+
+    resp = Poison.decode! response(conn, :ok)
+    assert resp["data"]["attributes"] == Map.put(char, "user-id", user.model.id)
+    # sort by id here as well.
+  end
+
+  test "delete /characters/char_id removes the character specified for the given user in the token provided", ctx do
     user = Enum.at ctx.users, 0
     char = Enum.at user.chars, 0
 
@@ -143,5 +167,22 @@ defmodule YggdrasilWeb.CharacterControllerTest do
     assert response(conn, :no_content)
 
     assert nil == Repo.get Character, char.id
+  end
+
+  test "delete /characters/char_id doesn't removes the character specified for another user instead of user in the token provided", ctx do
+    user = Enum.at ctx.users, 0
+    user2 = Enum.at ctx.users, 1
+    char = Enum.at user2.chars, 0
+
+
+    path = api_character_path(conn, :delete, char.id)
+
+    conn = ctx.conn
+    |> put_req_header("authorization", user.token)
+    |> delete(path)
+
+    assert response(conn, :ok) =~ @invalid_charater
+
+    assert char == Repo.get Character, char.id
   end
 end

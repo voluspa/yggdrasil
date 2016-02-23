@@ -46,7 +46,16 @@ defmodule YggdrasilWeb.CharacterController do
                     where: c.id == ^char_id and c.user_id == ^user_id,
                     select: c
 
-    case Repo.delete(char)do
+    do_delete conn, char
+  end
+
+  defp do_delete(conn, nil) do
+    render conn, :errors, data: %{title: "Invalid Character",
+                                  detail: "Character not found for the specified user"}
+  end
+
+  defp do_delete(conn, char) do
+    case Repo.delete(char) do
       {:ok, _char} -> 
         # http://jsonapi.org/format/#crud-deleting
         conn
