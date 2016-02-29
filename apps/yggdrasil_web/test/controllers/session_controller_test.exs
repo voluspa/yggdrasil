@@ -1,8 +1,8 @@
 defmodule YggdrasilWeb.SessionControllerTest do
   use YggdrasilWeb.ConnCase
 
-  alias Yggdrasil.Repo
-  alias Yggdrasil.User
+  alias YggdrasilWeb.Repo
+  alias YggdrasilWeb.User
 
   @json_api_content_type "application/vnd.api+json"
   @json_api_content_type_utf8 @json_api_content_type <> "; charset=utf-8"

@@ -1,7 +1,7 @@
 defmodule PlayerChannelTest do
   use YggdrasilWeb.ChannelCase
-  alias YggdrasilWeb.PlayerChannel
-  alias Yggdrasil.{Message, User, Game, Character}
+  alias YggdrasilWeb.{PlayerChannel, User}
+  alias Yggdrasil.{Message, Game, Character}
 
   @user   %{username: "tester",
             password: "test123", 
@@ -16,13 +16,13 @@ defmodule PlayerChannelTest do
 
     {:ok, game} = %Game{}
     |> Game.changeset(@game)
-    |> Repo.insert
+    |> YggRepo.insert
 
-    character = %{name: "testchar", user_id: user.id, game_id: game.id}
+    character = %{name: "testchar", ext_id: user.id, game_id: game.id}
 
     {:ok, char} = %Character{}
     |> Character.changeset(character)
-    |> Repo.insert
+    |> YggRepo.insert
 
     {:ok, %{char: char, user: user}}
   end

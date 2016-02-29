@@ -1,7 +1,8 @@
 defmodule YggdrasilWeb.GameControllerTest do
   use YggdrasilWeb.ConnCase
 
-  alias Yggdrasil.{Repo, User, Game}
+  alias YggdrasilWeb.User
+  alias Yggdrasil.Game
 
   @user %{username: "tester",
           password: "password",
@@ -24,7 +25,7 @@ defmodule YggdrasilWeb.GameControllerTest do
     games = Enum.map 1..10, fn n ->
       game = Game.changeset(%Game{}, %{"name" => "game#{n}",
                                        "description" => "game desc #{n}"})
-      {:ok, game} = Repo.insert game
+      {:ok, game} = YggRepo.insert game
 
       game
     end

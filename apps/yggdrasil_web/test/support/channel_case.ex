@@ -20,7 +20,8 @@ defmodule YggdrasilWeb.ChannelCase do
       # Import conveniences for testing with channels
       use Phoenix.ChannelTest
 
-      alias Yggdrasil.Repo
+      alias YggdrasilWeb.Repo
+      alias Yggdrasil.Repo, as: YggRepo
       import Ecto.Model
       import Ecto.Query, only: [from: 2]
 
@@ -32,6 +33,7 @@ defmodule YggdrasilWeb.ChannelCase do
 
   setup tags do
     unless tags[:async] do
+      Ecto.Adapters.SQL.restart_test_transaction(YggdrasilWeb.Repo, [])
       Ecto.Adapters.SQL.restart_test_transaction(Yggdrasil.Repo, [])
     end
 

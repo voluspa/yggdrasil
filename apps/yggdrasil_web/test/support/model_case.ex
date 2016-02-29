@@ -16,7 +16,7 @@ defmodule YggdrasilWeb.ModelCase do
 
   using do
     quote do
-      alias Yggdrasil.Repo
+      alias YggdrasilWeb.Repo
       import Ecto.Model
       import Ecto.Query, only: [from: 2]
       import YggdrasilWeb.ModelCase
@@ -25,7 +25,7 @@ defmodule YggdrasilWeb.ModelCase do
 
   setup tags do
     unless tags[:async] do
-      Ecto.Adapters.SQL.restart_test_transaction(Yggdrasil.Repo, [])
+      Ecto.Adapters.SQL.restart_test_transaction(YggdrasilWeb.Repo, [])
     end
 
     :ok

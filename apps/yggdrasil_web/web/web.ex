@@ -30,7 +30,7 @@ defmodule YggdrasilWeb.Web do
     quote do
       use Phoenix.Controller
 
-      alias Yggdrasil.Repo
+      alias YggdrasilWeb.Repo
       import Ecto
       import Ecto.Query, only: [from: 1, from: 2]
 
@@ -66,7 +66,7 @@ defmodule YggdrasilWeb.Web do
     quote do
       use Phoenix.Channel
 
-      alias Yggdrasil.Repo
+      alias YggdrasilWeb.Repo
       import Ecto
       import Ecto.Query, only: [from: 1, from: 2]
       import YggdrasilWeb.Gettext

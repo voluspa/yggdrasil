@@ -7,5 +7,10 @@ addons:
   postgresql: "9.4"
 env:
   - MIX_ENV=test
+before_script:
+  - mix ecto.create -r Yggdrasil.Repo
+  - mix ecto.migrate -r Yggdrasil.Repo
+  - mix ecto.create -r YggdrasilWeb.Repo
+  - mix ecto.migrate -r YggdrasilWeb.Repo
 script:
   - mix coveralls.travis --umbrella

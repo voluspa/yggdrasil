@@ -14,6 +14,7 @@ defmodule YggdrasilWeb.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      test_coverage: [tool: ExCoveralls],
+     aliases: aliases,
      deps: deps]
   end
 
@@ -22,7 +23,7 @@ defmodule YggdrasilWeb.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {YggdrasilWeb, []},
-     applications: [:phoenix, :postgrex, :phoenix_html,
+     applications: [:phoenix, :postgrex, :ecto, :phoenix_html,
                     :cowboy, :logger, :gettext, :yggdrasil]]
   end
 
@@ -44,8 +45,20 @@ defmodule YggdrasilWeb.Mixfile do
      {:ja_serializer, "~> 0.6.1"},
      {:guardian, "~> 0.10.1"},
      {:postgrex, ">= 0.0.0"},
+     {:ecto, "~> 1.1"},
      {:cors_plug, "~> 0.1.4"},
      {:excoveralls, "~>0.5.1"}
    ]
+  end
+
+  # Aliases are shortcut or tasks specific to the current project.
+  # For example, to create, migrate and run the seeds file at once:
+  #
+  #     $ mix ecto.setup
+  #
+  # See the documentation for `Mix` for more info on aliases.
+  defp aliases do
+    ["ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+     "ecto.reset": ["ecto.drop", "ecto.setup"]]
   end
 end

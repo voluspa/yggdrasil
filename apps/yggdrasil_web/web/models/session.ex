@@ -1,5 +1,5 @@
 defmodule YggdrasilWeb.Session do
-  alias Yggdrasil.User
+  alias YggdrasilWeb.User
 
   def login(%{"username" => nil}, _repo) do
     Comeonin.Bcrypt.dummy_checkpw()

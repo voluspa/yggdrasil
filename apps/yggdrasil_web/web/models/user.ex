@@ -1,6 +1,5 @@
-defmodule Yggdrasil.User do
-  use Ecto.Schema
-  import Ecto.Changeset
+defmodule YggdrasilWeb.User do
+  use YggdrasilWeb.Web, :model
   import Comeonin.Bcrypt, only: [hashpwsalt: 1]
   require Logger
 
@@ -9,7 +8,6 @@ defmodule Yggdrasil.User do
     field :hash, :string
     field :password, :string, virtual: true # not part of table
     field :password_confirmation, :string, virtual: true # not part of table
-
     timestamps
   end
 

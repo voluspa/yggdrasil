@@ -1,7 +1,7 @@
 defmodule YggdrasilWeb.RegistrationController do
   use YggdrasilWeb.Web, :controller
 
-  alias Yggdrasil.User
+  alias YggdrasilWeb.User
 
   @invalid_document %{title: "Invalid document.",
                       detail: "Invalid document."}

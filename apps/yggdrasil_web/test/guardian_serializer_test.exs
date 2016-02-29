@@ -1,7 +1,7 @@
 defmodule YggdrasilWeb.GuardianSerializerTest do
   use YggdrasilWeb.ModelCase
 
-  alias Yggdrasil.User
+  alias YggdrasilWeb.User
   alias YggdrasilWeb.GuardianSerializer
 
   @user %{username: "tester",

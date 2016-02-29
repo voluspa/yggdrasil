@@ -3,11 +3,12 @@ defmodule YggdrasilWeb.CharacterController do
   use Guardian.Phoenix.Controller
 
   alias Yggdrasil.Character
+  alias Yggdrasil.Repo, as: YggRepo
 
   def index(conn, _params, user, _claims) do
     user_id = user.id
-    chars = Repo.all from c in Character,
-                    where: c.user_id == ^user_id,
+    chars = YggRepo.all from c in Character,
+                    where: c.ext_id == ^user_id,
                     select: c
 
     render conn, :show, data: chars
@@ -18,18 +19,18 @@ defmodule YggdrasilWeb.CharacterController do
 
     # returns nil if not found
     # need to sort out what we want here.
-    char = Repo.one from c in Character,
-                    where: c.id == ^char_id and c.user_id == ^user_id,
+    char = YggRepo.one from c in Character,
+                    where: c.id == ^char_id and c.ext_id == ^user_id,
                     select: c
 
     render conn, :show, data: char
   end
 
   def create(conn, %{"data" => %{"attributes" => attributes}}, user, _claims) do
-    attributes = Map.put attributes, "user_id", user.id
+    attributes = Map.put attributes, "ext_id", user.id
     char = Character.changeset(%Character{}, attributes)
 
-    case Repo.insert(char) do
+    case YggRepo.insert(char) do
       {:ok, new_char} ->
         render conn, :show, data: new_char
       {:error, err_changeset} ->
@@ -42,8 +43,8 @@ defmodule YggdrasilWeb.CharacterController do
 
     # returns nil if not found
     # need to sort out what we want here.
-    char = Repo.one from c in Character,
-                    where: c.id == ^char_id and c.user_id == ^user_id,
+    char = YggRepo.one from c in Character,
+                    where: c.id == ^char_id and c.ext_id == ^user_id,
                     select: c
 
     do_delete conn, char
@@ -55,7 +56,7 @@ defmodule YggdrasilWeb.CharacterController do
   end
 
   defp do_delete(conn, char) do
-    case Repo.delete(char) do
+    case YggRepo.delete(char) do
       {:ok, _char} -> 
         # http://jsonapi.org/format/#crud-deleting
         conn

@@ -3,14 +3,15 @@ defmodule YggdrasilWeb.PlayerChannel do
 
   alias YggdrasilWeb.Endpoint
   alias Yggdrasil.{Player, Message, Command.Parser, Character}
+  alias Yggdrasil.Repo, as: YggRepo
 
   require Logger
 
   def join("player:" <> char_id = _topic, _message, socket) do
     user_id = socket.assigns.user
 
-    char = Repo.one from c in Character,
-                    where: c.id == ^char_id and c.user_id == ^user_id,
+    char = YggRepo.one from c in Character,
+                    where: c.id == ^char_id and c.ext_id == ^user_id,
                     select: c
 
     if char do

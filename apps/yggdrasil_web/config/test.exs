@@ -9,6 +9,15 @@ config :yggdrasil_web, YggdrasilWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
+config :yggdrasil_web, YggdrasilWeb.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  username: "postgres",
+  password: "postgres",
+  database: "yggdrasil_web_test",
+  hostname: "localhost",
+  pool: Ecto.Adapters.SQL.Sandbox
+
+
 # Configure plug for json mime type
 # will require plug to be recompiled
 config :plug, :mimes, %{

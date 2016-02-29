@@ -27,6 +27,14 @@ config :yggdrasil_web, YggdrasilWeb.Endpoint,
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 
+config :yggdrasil_web, YggdrasilWeb.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  username: "postgres",
+  password: "postgres",
+  database: "yggdrasil_web_dev",
+  hostname: "localhost",
+  pool_size: 10
+
 # Set a higher stacktrace during development.
 # Do not configure such in production as keeping
 # and calculating stacktraces is usually expensive.

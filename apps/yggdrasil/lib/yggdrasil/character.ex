@@ -4,13 +4,13 @@ defmodule Yggdrasil.Character do
 
   schema "characters" do
     field :name, :string
-    belongs_to :user, Yggdrasil.User
+    field :ext_id, :id
     belongs_to :game, Yggdrasil.Game
 
     timestamps
   end
 
-  @required_fields ~w(name user_id game_id)
+  @required_fields ~w(name ext_id game_id)
   @optional_fields ~w()
 
   @doc """
@@ -23,7 +23,6 @@ defmodule Yggdrasil.Character do
     model
     |> cast(params, @required_fields, @optional_fields)
     |> unique_constraint(:name, name: :characters_name_game_id_index)
-    |> assoc_constraint(:user)
     |> assoc_constraint(:game)
     |> validate_length(:name, min: 3)
   end

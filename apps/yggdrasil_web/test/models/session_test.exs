@@ -2,7 +2,7 @@ defmodule YggdrasilWeb.SessionTest do
   use YggdrasilWeb.ConnCase
 
   alias YggdrasilWeb.Session
-  alias Yggdrasil.User
+  alias YggdrasilWeb.User
 
   @user %User{:username => "tester"}
 
