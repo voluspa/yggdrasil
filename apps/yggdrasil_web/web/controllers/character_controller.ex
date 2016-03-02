@@ -2,13 +2,26 @@ defmodule YggdrasilWeb.CharacterController do
   use YggdrasilWeb.Web, :controller
   use Guardian.Phoenix.Controller
 
+  import YggdrasilWeb.EnsurePermission, only: [check_permissions: 2]
+
   alias Yggdrasil.Character
+  alias YggdrasilWeb.EnsurePermission
+
+  plug EnsurePermission, [character: [:read]] when action in [:index, :show]
+  plug EnsurePermission, [character: [:write]] when action in [:create, :delete]
 
   def index(conn, _params, user, _claims) do
     user_id = user.id
-    chars = Repo.all from c in Character,
-                    where: c.user_id == ^user_id,
-                    select: c
+
+    query = if check_permissions(conn, character: [:admin]) do
+      Character
+    else
+      from c in Character,
+      where: c.user_id == ^user_id,
+      select: c
+    end
+
+    chars = Repo.all query
 
     render conn, :show, data: chars
   end
