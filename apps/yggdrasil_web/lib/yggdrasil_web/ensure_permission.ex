@@ -44,30 +44,23 @@ defmodule YggdrasilWeb.EnsurePermission do
 
   def all?(conn, res_perms) do
     user = Guardian.Plug.current_resource(conn)
-    resources = user.role.role_resources
 
     results = Enum.map res_perms, fn {res, perms} ->
-      resource = Enum.find resources, fn r ->
-        r.resource.name == Atom.to_string(res)
-      end
+      res_perm_set = user.role.role_resources
+      |> Enum.filter(fn r -> r.resource.name == Atom.to_string(res) end)
+      |> Enum.map(fn r -> r.permission.name end)
+      |> MapSet.new
 
-      if resource do
-        # turn perm atoms into strings
-        perms = Enum.map perms, fn p -> Atom.to_string(p) end
+      # turn perm atoms into strings
+      perm_set = perms
+      |> Enum.map(fn p -> Atom.to_string(p) end)
+      |> MapSet.new
 
-        # reduce to a names only to compare
-        r_perms = Enum.map resource.role_resource_permissions, fn rp ->
-          rp.permission.name
-        end
-
-        perm_set = MapSet.new perms
-        res_perm_set = MapSet.new r_perms
-
-        # is perm_set a sub set of res_perm_set?
-        MapSet.subset? perm_set, res_perm_set
-      else
-        Logger.warning fn -> "#{res} is not a resource on #{user.role.name}" end
+      if MapSet.size(res_perm_set) == 0 do
+        Logger.warning fn -> "no permissions found for #{res.name} on #{user.role.name}" end
         false
+      else
+        MapSet.subset? perm_set, res_perm_set
       end
     end
 

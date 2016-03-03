@@ -5,8 +5,7 @@ defmodule Yggdrasil.RoleResource do
   schema "roles_resources" do
     belongs_to :role, Yggdrasil.Role
     belongs_to :resource, Yggdrasil.Resource
-
-    has_many :role_resource_permissions, Yggdrasil.RoleResourcePermission
+    belongs_to :permission, Yggdrasil.Permission
 
     timestamps
   end

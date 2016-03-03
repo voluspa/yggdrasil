@@ -37,7 +37,7 @@ defmodule Yggdrasil.User do
       role: [
         role_resources: [
           :resource,
-          role_resource_permissions: [:permission]
+          :permission
         ]
       ]
     ]
