@@ -11,7 +11,7 @@ defmodule YggdrasilWeb.GuardianSerializer do
 
   def from_token("user:" <> user_id) do
     user = User
-    |> User.with_role
+    |> User.with_roles
     |> Repo.get!(user_id)
 
     {:ok, user}

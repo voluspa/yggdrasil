@@ -86,7 +86,7 @@ defmodule YggdrasilWeb.RegistrationControllerTest do
     user_id = res_user["data"]["id"]
 
     user = User
-    |> User.with_role
+    |> User.with_roles
     |> Repo.get!(user_id)
 
     assert Guardian.serializer.from_token(claims["sub"]) == {:ok, user}

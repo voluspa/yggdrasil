@@ -1,16 +1,18 @@
 defmodule Yggdrasil.User do
   use Ecto.Schema
   import Ecto.Changeset
-  import Ecto.Query, only: [from: 1, from: 2] # dislike this
+  import Ecto.Query, only: [from: 1, from: 2]
   import Comeonin.Bcrypt, only: [hashpwsalt: 1]
-  require Logger
+
+  alias Yggdrasil.{Repo, User, Role, UserRole}
 
   schema "users" do
     field :username, :string
     field :hash, :string
     field :password, :string, virtual: true # not part of table
     field :password_confirmation, :string, virtual: true # not part of table
-    belongs_to :role, Yggdrasil.Role
+
+    has_many :user_roles, Yggdrasil.UserRole
 
     timestamps
   end
@@ -27,46 +29,51 @@ defmodule Yggdrasil.User do
     |> validate_length(:password, min: 4)
     |> validate_length(:password_confirmation, min: 4)
     |> validate_confirmation(:password)
-    |> default_role
     |> hash_password
   end
 
-  def with_role(query) do
+  @doc """
+  Creates the user and assigns the default roles of "player"
+  """
+  def create_with_default_role(attributes) do
+    changeset = User.create_changeset(%User{}, attributes)
+
+    with {:ok, user} <- Repo.insert(changeset),
+          :ok        <- add_default_role(user),
+     do: {:ok, user}
+  end
+
+  defp add_default_role(user) do
+    default = Repo.one!(from r in Role, where: r.name == "player", select: r)
+
+    case Repo.insert(%UserRole{ user_id: user.id, role_id: default.id }) do
+      {:ok, _role} -> :ok
+      error        -> error
+    end
+  end
+
+  def with_roles(query) do
     from q in query,
     preload: [
-      role: [
-        role_resources: [
-          :resource,
-          :permission
+      user_roles: [
+        role: [
+          role_resources: [
+            :resource,
+            :permission
+          ]
         ]
       ]
     ]
   end
 
-  @doc """
-  adds password at end of chain protects the hashpwsalt from seeing a nil value
-  in the case of missing password field.
-  """
-  def hash_password(changeset = %{:valid? => false}) do
+  # adds password at end of chain protects the hashpwsalt from seeing a nil value
+  # in the case of missing password field.
+  defp hash_password(changeset = %{:valid? => false}) do
     changeset
   end
 
-  def hash_password(changeset = %{:valid? => true}) do
+  defp hash_password(changeset = %{:valid? => true}) do
     changeset
       |> put_change(:hash, hashpwsalt(changeset.params["password"]))
-  end
-
-  def default_role(changeset = %{:valid? => false}) do
-    changeset
-  end
-
-  def default_role(changeset = %{:valid? => true}) do
-    # short term, if I don't put it here I will break
-    # all the tests that require a user and that's a lot
-    role = Yggdrasil.Repo.one! from r in Yggdrasil.Role,
-                               where: r.name == "player",
-                               select: r
-    changeset
-      |> put_change(:role_id, role.id)
   end
 end

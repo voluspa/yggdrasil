@@ -1,6 +1,5 @@
 defmodule Yggdrasil.RoleResource do
   use Ecto.Schema
-  import Ecto.Changeset
 
   schema "roles_resources" do
     belongs_to :role, Yggdrasil.Role

@@ -1,32 +1,52 @@
 defmodule YggdrasilWeb.EnsurePermission do
   @moduledoc ~S"""
   ## Overview
-  This plug takes in a connection and set of permission and ensures that all
-  permissions provided are present for the user on the connection.
+  This plug checks to ensure all permissions provided have been granted for
+  the user on the connection. If all permissions have been granted then the 
+  plug will allow the request to proceed otherwise it will send a 401 to the
+  client and halt the connection.
 
+  ## Roles
+  A user can have one or more roles with each role having a set of resources
+  and a set of resources and those resources having a set of permissions. Roles
+  are not checked directly and only serve as a grouping mechanism for resources.
+
+  This plug only deals with resources and the permissions associated with them
+  so in the examples below you will that keyword lists are used where the key is
+  the resource desired and the value is the set of permissions to check.
+
+  Since the user can have multiple roles, the permission set checked for a given
+  resource is the unique set across all the roles for that resource.
+
+  So if the user has Role1 and Role2 defined as follows:
+
+    * Role1
+      * foo
+        * :read
+        * :write
+    * Role2
+      * foo
+        * :read
+        * :all
+
+  The set of permissions checked for foo will be [:read, :write, :all]
+
+  ## Examples
     import Yggdrasil.EnsurePermission
 
-    plug EnsurePermission, [foo: [:read]] when action in [:index]
+    # checking a single resource
+    plug EnsurePermission, [foo: [:read]]
 
-  ## Roles and Permissions 
-  The user's permissions are dictated by their role. Each role has a set
-  resources and each resource has a set of permissions. With this scheme
-  the res_perms passed in are in the form of:
+    # checking multiple resources is allowed as well
+    plug EnsurePermission, [foo: [:read], bar: [:read, :write]]
 
-  [resource: [perm_set], resource: [perm_set]]
-
-  for as many resources and permissions that are needed. Then each resource is
-  processed in the list looking up the resource on the role, and then validating
-  that the set of perms passed in are contained in the set for the given resource
-  on the role.
-
-  If and only if all resources provided are found, and all permissions for each
-  resource are in present for that resource on the user's given role will this
-  plug process the request, otherwise it will send a 401 and stop processing
+    # being a plug it can also be used with guard to only restrict certain
+    # actions with permissions. In the following example the :index action
+    # will only be allowed if the foo resource has the :read permission
+    plug EnsurePermission, [foo: [:read]] when action [:index]
   """
 
   import Plug.Conn
-  require Logger
 
   def init(opts) do
     opts
@@ -37,7 +57,7 @@ defmodule YggdrasilWeb.EnsurePermission do
       conn
     else
       conn
-      |> send_resp(:unauthroized, "")
+      |> send_resp(:unauthorized, "")
       |> halt
     end
   end
@@ -46,7 +66,8 @@ defmodule YggdrasilWeb.EnsurePermission do
     user = Guardian.Plug.current_resource(conn)
 
     results = Enum.map res_perms, fn {res, perms} ->
-      res_perm_set = user.role.role_resources
+      res_perm_set = user.user_roles
+      |> Enum.flat_map(fn ur -> ur.role.role_resources end)
       |> Enum.filter(fn r -> r.resource.name == Atom.to_string(res) end)
       |> Enum.map(fn r -> r.permission.name end)
       |> MapSet.new
@@ -57,7 +78,6 @@ defmodule YggdrasilWeb.EnsurePermission do
       |> MapSet.new
 
       if MapSet.size(res_perm_set) == 0 do
-        Logger.warning fn -> "no permissions found for #{res.name} on #{user.role.name}" end
         false
       else
         MapSet.subset? perm_set, res_perm_set
