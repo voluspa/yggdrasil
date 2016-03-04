@@ -1,6 +1,7 @@
 defmodule Yggdrasil.RoleResource do
   use Ecto.Schema
 
+  @primary_key false
   schema "roles_resources" do
     belongs_to :role, Yggdrasil.Role
     belongs_to :resource, Yggdrasil.Resource
