@@ -9,6 +9,7 @@ defmodule Yggdrasil.Repo.Migrations.CreateUsersRoles do
       timestamps
     end
     create index(:users_roles, [:user_id])
+    create unique_index(:users_roles, [:user_id, :role_id])
 
   end
 end
