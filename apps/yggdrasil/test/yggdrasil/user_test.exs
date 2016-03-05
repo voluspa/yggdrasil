@@ -1,5 +1,7 @@
 defmodule Yggdrasil.UserTest do
   use ExUnit.Case, async: false
+  import Ecto.Query, only: [from: 1, from: 2]
+
   alias Yggdrasil.{Repo, User, Role, RoleResource, Resource, Permission}
   alias Comeonin.Bcrypt
 
@@ -104,6 +106,8 @@ defmodule Yggdrasil.UserTest do
           }
         end
       end
+
+      role
     end
   end
 
@@ -152,6 +156,35 @@ defmodule Yggdrasil.UserTest do
     |> Enum.filter(fn combo -> combo == Enum.uniq_by(combo, fn {k, _} -> k end) end)
 
     {res_perm_combo, uniq_res_perm_combos}
+  end
+
+  defp ensure_roles_are_loaded(user) do
+    all_roles_loaded = fn ur ->
+      Ecto.assoc_loaded?(ur.role)
+    end
+
+    all_role_resources_loaded = fn ur ->
+      Ecto.assoc_loaded?(ur.role.role_resources)
+    end
+
+    all_resources_loaded = fn ur ->
+      Enum.map ur.role.role_resources, fn rr ->
+        Ecto.assoc_loaded?(rr.resource)
+      end
+    end
+
+    all_permissions_loaded = fn ur ->
+      Enum.map ur.role.role_resources, fn rr ->
+        Ecto.assoc_loaded?(rr.permission)
+      end
+    end
+
+    with true <- Ecto.assoc_loaded?(user.user_roles),
+         true <- Enum.all?(Enum.map(user.user_roles, all_roles_loaded)),
+         true <- Enum.all?(Enum.map(user.user_roles, all_role_resources_loaded)),
+         true <- Enum.all?(Enum.flat_map(user.user_roles, all_resources_loaded)),
+         true <- Enum.all?(Enum.flat_map(user.user_roles, all_permissions_loaded)),
+     do: true
   end
 
   # -- tests
@@ -364,5 +397,69 @@ defmodule Yggdrasil.UserTest do
     Enum.each uniq_res_perm_combos, fn combo ->
       refute User.is_granted? user, combo
     end
+  end
+
+  test "create_with_default_role/1 creates user and assigns 'player' as the default role" do
+    role = Repo.one!(from r in Role, where: r.name == "player", select: r)
+
+    {:ok, user} = User.create_with_default_role(@valid_attrs) 
+    user = Repo.preload(user, :user_roles)
+
+    default_role = Enum.find user.user_roles, fn ur ->
+      ur.role_id == role.id
+    end
+
+    assert default_role.role_id == role.id
+  end
+
+  test "assign_role/2 associates supplied role to user" do
+    [role|_rest] = insert_test_roles
+
+    user = %User{}
+    |> User.create_changeset(@valid_attrs)
+    |> Repo.insert!
+
+    :ok = User.assign_role(user, role.name)
+
+    user = Repo.preload(user, :user_roles)
+
+    assigned_role = Enum.find user.user_roles, fn ur ->
+      ur.role_id == role.id
+    end
+    assert assigned_role.role_id == role.id
+  end
+
+  test "preload_roles/1 takes a fetched user and preloads all the user_roles and child associations" do
+    roles = insert_test_roles
+
+    user = %User{}
+    |> User.create_changeset(@valid_attrs)
+    |> Repo.insert!
+
+    Enum.each roles, fn r ->
+      :ok = User.assign_role(user, r.name)
+    end
+
+    user = User.preload_roles(user)
+
+    assert ensure_roles_are_loaded(user)
+  end
+
+  test "with_roles/1 returns a query that fetches the user and preloads all the user_roles and child associations" do
+    roles = insert_test_roles
+
+    user = %User{}
+    |> User.create_changeset(@valid_attrs)
+    |> Repo.insert!
+
+    Enum.each roles, fn r ->
+      :ok = User.assign_role(user, r.name)
+    end
+
+    user = User
+    |> User.with_roles
+    |> Repo.one!
+
+    assert ensure_roles_are_loaded(user)
   end
 end
