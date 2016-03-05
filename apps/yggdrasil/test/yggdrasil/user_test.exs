@@ -107,6 +107,53 @@ defmodule Yggdrasil.UserTest do
     end
   end
 
+  defp user_perms_for_roles(roles) do
+    insert_test_roles()
+
+    user = %User{}
+    |> User.create_changeset(@valid_attrs)
+    |> Repo.insert!()
+
+    Enum.each roles, fn r ->
+      :ok = User.assign_role(user, Atom.to_string(r.name))
+    end
+
+    res_perm_list = roles
+    |> Enum.flat_map(fn r -> r.resources end)
+    |> Enum.group_by(fn res -> res.name end)
+    |> Enum.map(fn {res_name, res} -> 
+        {res_name, Enum.flat_map(res, fn res -> res.perms end)}
+       end)
+
+    res_uniq_perm_list = Enum.map res_perm_list, fn {res, perms} ->
+      {res, Enum.uniq(perms)}
+    end
+
+    {user, res_uniq_perm_list, res_perm_list}
+  end
+
+  defp produce_resoure_perms_combos(res_perms) do
+    # unique combinations per resource
+    # [[foo: [:foo_p, :bar_p], foo: [:bar_p], foo: [foo_p]], [bar: [:foo_p, :bar_p], bar: [:foo_p], etc...]]
+    res_perm_combo = Enum.map res_perms, fn {k, v} ->
+      Enum.flat_map(1..Enum.count(v), &(Combination.combine(v, &1)))
+      |> Enum.map(fn combos -> {k, combos} end)
+    end
+
+    # taks the res_perm_combo and produces a list of resource/perm list combos
+    # so the size of list combos is the number of resources and why the count of 
+    # res_perm_list is taken. In order to produce list of combos the combinations where
+    # a resoure appears twice or for the whole combo list needs to be filtered out. 
+    # so this produces 
+    # [[foo: [:foo_p, :bar_p], bar: [:foo_p]], [foo: [:foo_p, :bar_p], bar: [:foo_p, :bar_p]]] etc..
+    uniq_res_perm_combos = res_perm_combo
+    |> List.flatten 
+    |> Combination.combine(Enum.count(res_perms))
+    |> Enum.filter(fn combo -> combo == Enum.uniq_by(combo, fn {k, _} -> k end) end)
+
+    {res_perm_combo, uniq_res_perm_combos}
+  end
+
   # -- tests
 
   test "create_changeset with valid attributes" do
@@ -259,24 +306,63 @@ defmodule Yggdrasil.UserTest do
     refute Map.has_key?(changeset.changes, :hash)
   end
 
-  test "is_granted? verifies all perms for both roles assigned to user" do
-    insert_test_roles()
+  test "is_granted?/2 returns true with all granted resource/perms" do
+    {user, res_uniq_perm_list, _} = user_perms_for_roles(@test_roles)
 
-    user = %User{}
-    |> User.create_changeset(@valid_attrs)
-    |> Repo.insert!()
+    assert User.is_granted? user, res_uniq_perm_list
+  end
 
-    Enum.each @test_roles, fn r ->
-      User.assign_role(user, Atom.to_string(r.name))
+  test "is_granted?/2 returns true for any one resources's granted permission set" do
+    {user, res_uniq_perm_list, _} = user_perms_for_roles(@test_roles)
+
+    Enum.each res_uniq_perm_list, fn res_perm ->
+      assert User.is_granted? user, [res_perm]
+    end
+  end
+
+  test "is_granted?/2 returns true any combination of granted permissions" do
+    {user, res_uniq_perm_list, _} = user_perms_for_roles(@test_roles)
+
+    {res_perm_combo, uniq_res_perm_combos} = produce_resoure_perms_combos(res_uniq_perm_list)
+
+    # lets check each resource combo individually first
+    Enum.each res_perm_combo, fn res_list ->
+      Enum.each res_list, fn combo ->
+        assert User.is_granted? user, [combo]
+      end
     end
 
-    res_perm_list  = @test_roles
-    |> Enum.flat_map(fn r -> r.resources end)
-    |> Enum.group_by(fn res -> res.name end)
-    |> Enum.map(fn {res_name, res} -> 
-        {res_name, Enum.flat_map(res, fn res -> res.perms end)}
-       end)
+    # now lets check all the combos
+    Enum.each uniq_res_perm_combos, fn combo ->
+      assert User.is_granted? user, combo
+    end
+  end
 
-    assert User.is_granted? user, res_perm_list
+  test "is_granted?/2 returns false for all combinations of non granted permissions" do
+    {user, res_uniq_perm_list, _} = user_perms_for_roles(@test_roles)
+
+    res_uniq_perm_list = Enum.map res_uniq_perm_list, fn {res, perms} ->
+      perms = Enum.map perms, fn p -> 
+        p = Atom.to_string(p)
+        p = p <> "_false"
+        String.to_atom(p)
+      end
+
+      {res, perms}
+    end
+
+    {res_perm_combo, uniq_res_perm_combos} = produce_resoure_perms_combos(res_uniq_perm_list)
+
+    # lets check each resource combo individually first
+    Enum.each res_perm_combo, fn res_list ->
+      Enum.each res_list, fn combo ->
+        refute User.is_granted? user, [combo]
+      end
+    end
+
+    # now lets check all the combos
+    Enum.each uniq_res_perm_combos, fn combo ->
+      refute User.is_granted? user, combo
+    end
   end
 end
