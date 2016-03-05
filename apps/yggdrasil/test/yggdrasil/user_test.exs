@@ -1,7 +1,6 @@
 defmodule Yggdrasil.UserTest do
   use ExUnit.Case, async: false
-  alias Yggdrasil.Repo
-  alias Yggdrasil.User
+  alias Yggdrasil.{Repo, User, Role, RoleResource, Resource, Permission}
   alias Comeonin.Bcrypt
 
   @min_len 4
@@ -25,6 +24,41 @@ defmodule Yggdrasil.UserTest do
   @unique_msg "has already been taken"
   @invalid_length_msg "should be at least %{count} character(s)"
 
+  @test_perms [:foo_perm, :bar_perm, :baz_perm]
+  @test_resources [:foo_res, :bar_res, :baz_res]
+  @test_roles [
+    %{
+      name: :foo_role,
+      resources: [
+        %{
+          name: :foo_res,
+          perms: [:foo_perm, :bar_perm]
+        },
+        %{
+          name: :bar_res,
+          perms: [:bar_perm, :baz_perm]
+        }
+      ]
+    },
+    %{
+      name: :bar_role,
+      resources: [
+        %{
+          name: :foo_res,
+          perms: [:baz_perm]
+        },
+        %{
+          name: :bar_res,
+          perms: [:foo_perm, :baz_perm]
+        },
+        %{
+          name: :baz_res,
+          perms: [:foo_perm, :bar_perm, :baz_perm]
+        }
+      ]
+    }
+  ]
+
   setup tags do
     unless tags[:async] do
       Ecto.Adapters.SQL.restart_test_transaction(Yggdrasil.Repo, [])
@@ -41,6 +75,36 @@ defmodule Yggdrasil.UserTest do
 
   defp hash_missing?(changeset) do
     !Map.has_key?(changeset.changes, :hash)
+  end
+
+  defp insert_test_roles do
+    perms = Enum.map @test_perms, fn p ->
+      Repo.insert! %Permission{name: Atom.to_string(p)}
+    end
+
+    res = Enum.map @test_resources, fn r ->
+      Repo.insert! %Resource{name: Atom.to_string(r)}
+    end
+
+    Enum.map @test_roles, fn tr ->
+      role = Repo.insert! %Role{name: Atom.to_string(tr.name)}
+
+      Enum.each tr.resources, fn trs ->
+        resource = Enum.find res, fn rs -> rs.name == Atom.to_string(trs.name) end
+
+        Enum.each trs.perms, fn trpm ->
+          permission = Enum.find perms, fn pm -> 
+            pm.name == Atom.to_string(trpm)
+          end
+
+          Repo.insert! %RoleResource{
+            role_id: role.id,
+            resource_id: resource.id,
+            permission_id: permission.id
+          }
+        end
+      end
+    end
   end
 
   # -- tests
@@ -193,5 +257,26 @@ defmodule Yggdrasil.UserTest do
 
     refute changeset.valid?
     refute Map.has_key?(changeset.changes, :hash)
+  end
+
+  test "is_granted? verifies all perms for both roles assigned to user" do
+    insert_test_roles()
+
+    user = %User{}
+    |> User.create_changeset(@valid_attrs)
+    |> Repo.insert!()
+
+    Enum.each @test_roles, fn r ->
+      User.assign_role(user, Atom.to_string(r.name))
+    end
+
+    res_perm_list  = @test_roles
+    |> Enum.flat_map(fn r -> r.resources end)
+    |> Enum.group_by(fn res -> res.name end)
+    |> Enum.map(fn {res_name, res} -> 
+        {res_name, Enum.flat_map(res, fn res -> res.perms end)}
+       end)
+
+    assert User.is_granted? user, res_perm_list
   end
 end

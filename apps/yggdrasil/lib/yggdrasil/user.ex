@@ -6,6 +6,8 @@ defmodule Yggdrasil.User do
 
   alias Yggdrasil.{Repo, User, Role, UserRole}
 
+  @default_role "player"
+
   schema "users" do
     field :username, :string
     field :hash, :string
@@ -39,8 +41,17 @@ defmodule Yggdrasil.User do
     changeset = User.create_changeset(%User{}, attributes)
 
     with {:ok, user} <- Repo.insert(changeset),
-          :ok        <- add_default_role(user),
+          :ok        <- assign_role(user, "player"),
      do: {:ok, user}
+  end
+
+  def assign_role(user, role_name) do
+    role = Repo.one!(from r in Role, where: r.name == ^role_name, select: r)
+
+    case Repo.insert(%UserRole{ user_id: user.id, role_id: role.id }) do
+      {:ok, _role} -> :ok
+      error        -> error
+    end
   end
 
   @doc ~S"""
@@ -105,7 +116,7 @@ defmodule Yggdrasil.User do
   end
 
   @doc """
-  query that preloads the all the user_roles for a user inlcuding
+  Query that preloads the all the user_roles for a user inlcuding
   all the subsequent associations.
   """
   def with_roles(query) do
@@ -122,7 +133,11 @@ defmodule Yggdrasil.User do
     ]
   end
 
-  defp preload_roles(user) do
+  @doc """
+  Preloads the all the user_roles for a user that has already beend
+  fetched. This will loadd all subsequent roles like `with_roles` does
+  """
+  def preload_roles(user) do
     query = from ur in UserRole,
     preload: [
       role: [
@@ -146,14 +161,4 @@ defmodule Yggdrasil.User do
     changeset
       |> put_change(:hash, hashpwsalt(changeset.params["password"]))
   end
-
-  defp add_default_role(user) do
-    default = Repo.one!(from r in Role, where: r.name == "player", select: r)
-
-    case Repo.insert(%UserRole{ user_id: user.id, role_id: default.id }) do
-      {:ok, _role} -> :ok
-      error        -> error
-    end
-  end
-
 end
