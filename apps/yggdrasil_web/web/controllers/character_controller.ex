@@ -2,14 +2,14 @@ defmodule YggdrasilWeb.CharacterController do
   use YggdrasilWeb.Web, :controller
   use Guardian.Phoenix.Controller
 
-  alias Yggdrasil.Character
+  alias Yggdrasil.{User, Character}
   alias YggdrasilWeb.EnsurePermission
 
   plug EnsurePermission, [character: [:read]] when action in [:index, :show]
   plug EnsurePermission, [character: [:write]] when action in [:create, :delete]
 
   def index(conn, _params, user, _claims) do
-    query = if has_all?(conn) do
+    query = if has_all?(user) do
       Character
     else
       from c in Character,
@@ -26,7 +26,7 @@ defmodule YggdrasilWeb.CharacterController do
 
     # returns nil if not found
     # need to sort out what we want here.
-    query = if has_all?(conn) do
+    query = if has_all?(user) do
       from c in Character,
       where: c.id == ^char_id,
       select: c
@@ -54,7 +54,7 @@ defmodule YggdrasilWeb.CharacterController do
   end
 
   def delete(conn, %{"char_id" => char_id}, user, _claims) do
-    query = if has_all?(conn) do
+    query = if has_all?(user) do
       from c in Character,
       where: c.id == ^char_id,
       select: c
@@ -87,7 +87,7 @@ defmodule YggdrasilWeb.CharacterController do
     end
   end
 
-  defp has_all?(conn) do
-    EnsurePermission.all?(conn, character: [:all])
+  defp has_all?(user) do
+    User.is_granted?(user, character: [:all])
   end
 end
