@@ -429,6 +429,25 @@ defmodule Yggdrasil.UserTest do
     assert assigned_role.role_id == role.id
   end
 
+  test "assign_role/2 with invalid user returns an error" do
+    [role|_rest] = insert_test_roles
+
+    user = %User{id: -12}
+
+    assert {:error, msg} = User.assign_role(user, role.name)
+    assert msg.errors == [user: "does not exist"]
+  end
+
+  test "assign_role/2 with invalid role raises an Ecto.NoResultsError" do
+    user = %User{}
+    |> User.create_changeset(@valid_attrs)
+    |> Repo.insert!
+
+    assert_raise Ecto.NoResultsError, fn ->
+      User.assign_role(user, "_not_valid")
+    end
+  end
+
   test "preload_roles/1 takes a fetched user and preloads all the user_roles and child associations" do
     roles = insert_test_roles
 

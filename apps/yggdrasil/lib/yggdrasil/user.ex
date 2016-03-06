@@ -48,7 +48,9 @@ defmodule Yggdrasil.User do
   def assign_role(user, role_name) do
     role = Repo.one!(from r in Role, where: r.name == ^role_name, select: r)
 
-    case Repo.insert(%UserRole{ user_id: user.id, role_id: role.id }) do
+    user_role = UserRole.changeset(%UserRole{},
+                                   %{user_id: user.id, role_id: role.id})
+    case Repo.insert(user_role) do
       {:ok, _role} -> :ok
       error        -> error
     end
