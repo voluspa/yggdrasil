@@ -7,7 +7,6 @@ defmodule Yggdrasil.Repo.Migrations.CreateResource do
 
       timestamps
     end
-    create unique_index(:resources, [:name])
 
   end
 end

@@ -7,7 +7,6 @@ defmodule Yggdrasil.Repo.Migrations.CreatePermission do
 
       timestamps
     end
-    create unique_index(:permissions, [:name])
 
   end
 end
