@@ -435,7 +435,7 @@ defmodule Yggdrasil.UserTest do
     user = %User{id: -12}
 
     assert {:error, msg} = User.assign_role(user, role.name)
-    assert msg.errors == [user: "does not exist"]
+    assert {:user, "does not exist"} in msg.errors
   end
 
   test "assign_role/2 with invalid role raises an Ecto.NoResultsError" do

@@ -80,7 +80,7 @@ defmodule Yggdrasil.UserRoleTest do
     assert {:error, _} = result
 
     {:error, changeset} = result
-    assert changeset.errors == [user: "does not exist"]
+    assert {:user, "does not exist"} in changeset.errors
   end
 
   test "changeset/2 with invalid role and valid user returns an error", ctx do
@@ -91,7 +91,7 @@ defmodule Yggdrasil.UserRoleTest do
     assert {:error, _} = result
 
     {:error, changeset} = result
-    assert changeset.errors == [role: "does not exist"]
+    assert {:role, "does not exist"} in changeset.errors
   end
 
   test "changeset/2 with valid user and role", ctx do
