@@ -1,7 +1,7 @@
 defmodule Yggdrasil.UserRoleTest do
   use ExUnit.Case, async: false
 
-  alias Yggdrasil.{Repo, User, Role, UserRole, RoleResource, Resource, Permission}
+  alias Yggdrasil.{Repo, User, Role, UserRole, RolePermission, Resource, Permission}
 
   @user %{username: "tester",
           password: "password",
@@ -47,7 +47,7 @@ defmodule Yggdrasil.UserRoleTest do
 
       Enum.each tr.resources, fn trs ->
         Enum.each trs.perms, fn trpm ->
-          Repo.insert! %RoleResource{
+          Repo.insert! %RolePermission{
             role_id: role.id,
             resource: Atom.to_string(trs.name),
             permission: Atom.to_string(trpm)

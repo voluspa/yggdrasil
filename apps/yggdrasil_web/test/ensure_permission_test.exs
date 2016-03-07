@@ -2,7 +2,7 @@ defmodule YggdrasilWeb.EnsurePermissionTest do
   use YggdrasilWeb.ConnCase
 
   alias YggdrasilWeb.EnsurePermission
-  alias Yggdrasil.{Repo, User, Role, RoleResource, Resource, Permission}
+  alias Yggdrasil.{Repo, User, Role, RolePermission, Resource, Permission}
 
   @user %{username: "tester",
           password: "password",
@@ -57,7 +57,7 @@ defmodule YggdrasilWeb.EnsurePermissionTest do
 
       Enum.each tr.resources, fn trs ->
         Enum.each trs.perms, fn trpm ->
-          Repo.insert! %RoleResource{
+          Repo.insert! %RolePermission{
             role_id: role.id,
             resource: Atom.to_string(trs.name),
             permission: Atom.to_string(trpm)

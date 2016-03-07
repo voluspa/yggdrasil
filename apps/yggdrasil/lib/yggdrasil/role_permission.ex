@@ -1,8 +1,8 @@
-defmodule Yggdrasil.RoleResource do
+defmodule Yggdrasil.RolePermission do
   use Ecto.Schema
 
   @primary_key false
-  schema "roles_resources" do
+  schema "roles_permissions" do
     field :resource, :string
     field :permission, :string
 

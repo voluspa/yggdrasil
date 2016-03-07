@@ -3,7 +3,7 @@ defmodule Yggdrasil.Role do
 
   schema "roles" do
     field :name, :string
-    has_many :role_resources, Yggdrasil.RoleResource
+    has_many :role_permissions, Yggdrasil.RolePermission
 
     timestamps
   end

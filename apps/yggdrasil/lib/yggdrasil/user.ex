@@ -96,7 +96,7 @@ defmodule Yggdrasil.User do
 
     results = Enum.map res_perms, fn {res, perms} ->
       res_perm_set = user.user_roles
-      |> Enum.flat_map(fn ur -> ur.role.role_resources end)
+      |> Enum.flat_map(fn ur -> ur.role.role_permissions end)
       |> Enum.filter(fn r -> r.resource == Atom.to_string(res) end)
       |> Enum.map(fn r -> r.permission end)
       |> MapSet.new
@@ -125,9 +125,7 @@ defmodule Yggdrasil.User do
     from q in query,
     preload: [
       user_roles: [
-        role: [
-          :role_resources
-        ]
+        role: [:role_permissions]
       ]
     ]
   end
@@ -139,7 +137,7 @@ defmodule Yggdrasil.User do
   def preload_roles(user) do
     query = from ur in UserRole,
     preload: [
-      role: [:role_resources]
+      role: [:role_permissions]
     ]
 
     Repo.preload(user, user_roles: query)

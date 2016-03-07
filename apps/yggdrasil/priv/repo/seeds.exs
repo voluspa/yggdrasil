@@ -9,7 +9,7 @@
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
-alias Yggdrasil.{Repo, Resource, Permission, Role, RoleResource}
+alias Yggdrasil.{Repo, Resource, Permission, Role, RolePermission}
 
 perms = ["read", "write", "all"]
 res = ["character", "game"]
@@ -36,7 +36,7 @@ Repo.transaction fn ->
     end
 
     Enum.each permissions, fn p ->
-      Repo.insert! %RoleResource{
+      Repo.insert! %RolePermission{
         role_id: player_role.id,
         resource: r,
         permission: p
@@ -49,7 +49,7 @@ Repo.transaction fn ->
 
   Enum.each res, fn r ->
     Enum.each perms, fn p ->
-      Repo.insert! %RoleResource{
+      Repo.insert! %RolePermission{
         role_id: admin_role.id,
         resource: r,
         permission: p

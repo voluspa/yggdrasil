@@ -2,7 +2,7 @@ defmodule Yggdrasil.UserTest do
   use ExUnit.Case, async: false
   import Ecto.Query, only: [from: 1, from: 2]
 
-  alias Yggdrasil.{Repo, User, Role, RoleResource, Resource, Permission}
+  alias Yggdrasil.{Repo, User, Role, RolePermission, Resource, Permission}
   alias Comeonin.Bcrypt
 
   @min_len 4
@@ -93,7 +93,7 @@ defmodule Yggdrasil.UserTest do
 
       Enum.each tr.resources, fn trs ->
         Enum.each trs.perms, fn trpm ->
-          Repo.insert! %RoleResource{
+          Repo.insert! %RolePermission{
             role_id: role.id,
             resource: Atom.to_string(trs.name),
             permission: Atom.to_string(trpm)
@@ -159,27 +159,13 @@ defmodule Yggdrasil.UserTest do
       Ecto.assoc_loaded?(ur.role)
     end
 
-    all_role_resources_loaded = fn ur ->
-      Ecto.assoc_loaded?(ur.role.role_resources)
-    end
-
-    all_resources_loaded = fn ur ->
-      Enum.map ur.role.role_resources, fn rr ->
-        Ecto.assoc_loaded?(rr.resource)
-      end
-    end
-
-    all_permissions_loaded = fn ur ->
-      Enum.map ur.role.role_resources, fn rr ->
-        Ecto.assoc_loaded?(rr.permission)
-      end
+    all_role_permissions_loaded = fn ur ->
+      Ecto.assoc_loaded?(ur.role.role_permissions)
     end
 
     with true <- Ecto.assoc_loaded?(user.user_roles),
          true <- Enum.all?(Enum.map(user.user_roles, all_roles_loaded)),
-         true <- Enum.all?(Enum.map(user.user_roles, all_role_resources_loaded)),
-         true <- Enum.all?(Enum.flat_map(user.user_roles, all_resources_loaded)),
-         true <- Enum.all?(Enum.flat_map(user.user_roles, all_permissions_loaded)),
+         true <- Enum.all?(Enum.map(user.user_roles, all_role_permissions_loaded)),
      do: true
   end
 
