@@ -97,8 +97,8 @@ defmodule Yggdrasil.User do
     results = Enum.map res_perms, fn {res, perms} ->
       res_perm_set = user.user_roles
       |> Enum.flat_map(fn ur -> ur.role.role_resources end)
-      |> Enum.filter(fn r -> r.resource.name == Atom.to_string(res) end)
-      |> Enum.map(fn r -> r.permission.name end)
+      |> Enum.filter(fn r -> r.resource == Atom.to_string(res) end)
+      |> Enum.map(fn r -> r.permission end)
       |> MapSet.new
 
       # turn perm atoms into strings
@@ -126,10 +126,7 @@ defmodule Yggdrasil.User do
     preload: [
       user_roles: [
         role: [
-          role_resources: [
-            :resource,
-            :permission
-          ]
+          :role_resources
         ]
       ]
     ]
@@ -142,12 +139,7 @@ defmodule Yggdrasil.User do
   def preload_roles(user) do
     query = from ur in UserRole,
     preload: [
-      role: [
-        role_resources: [
-          :resource,
-          :permission
-        ]
-      ]
+      role: [:role_resources]
     ]
 
     Repo.preload(user, user_roles: query)

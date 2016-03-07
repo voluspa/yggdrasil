@@ -3,9 +3,10 @@ defmodule Yggdrasil.RoleResource do
 
   @primary_key false
   schema "roles_resources" do
+    field :resource, :string
+    field :permission, :string
+
     belongs_to :role, Yggdrasil.Role
-    belongs_to :resource, Yggdrasil.Resource
-    belongs_to :permission, Yggdrasil.Permission
 
     timestamps
   end

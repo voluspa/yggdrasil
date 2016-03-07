@@ -11,23 +11,26 @@
 # and so on) as they will fail if something goes wrong.
 alias Yggdrasil.{Repo, Resource, Permission, Role, RoleResource}
 
+perms = ["read", "write", "all"]
+res = ["character", "game"]
+
 Repo.transaction fn ->
-  perms = Enum.map ["read", "write", "all"], fn p ->
+  Enum.each perms, fn p ->
     Repo.insert! %Permission{name: p}
   end
 
-  res = Enum.map ["character", "game"], fn r ->
+  Enum.each res, fn r ->
     Repo.insert! %Resource{name: r}
   end
 
   # player role ---
   player_role = Repo.insert! %Role{name: "player"}
 
-  player_perms = Enum.filter perms, fn p -> p.name != "all" end
+  player_perms = Enum.filter perms, fn p -> p != "all" end
 
   Enum.each res, fn r ->
-    permissions = if r.name == "game" do
-      Enum.filter player_perms, fn p -> p.name != "write" end
+    permissions = if r == "game" do
+      Enum.filter player_perms, fn p -> p != "write" end
     else
       player_perms
     end
@@ -35,8 +38,8 @@ Repo.transaction fn ->
     Enum.each permissions, fn p ->
       Repo.insert! %RoleResource{
         role_id: player_role.id,
-        resource_id: r.id,
-        permission_id: p.id
+        resource: r,
+        permission: p
       }
     end
   end
@@ -48,8 +51,8 @@ Repo.transaction fn ->
     Enum.each perms, fn p ->
       Repo.insert! %RoleResource{
         role_id: admin_role.id,
-        resource_id: r.id,
-        permission_id: p.id
+        resource: r,
+        permission: p
       }
     end
   end

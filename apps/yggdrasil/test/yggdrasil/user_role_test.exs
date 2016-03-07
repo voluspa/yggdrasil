@@ -34,11 +34,11 @@ defmodule Yggdrasil.UserRoleTest do
   end
 
   setup _ctx do
-    perms = Enum.map @test_perms, fn p ->
+    Enum.each @test_perms, fn p ->
       Repo.insert! %Permission{name: Atom.to_string(p)}
     end
 
-    res = Enum.map @test_resources, fn r ->
+    Enum.each @test_resources, fn r ->
       Repo.insert! %Resource{name: Atom.to_string(r)}
     end
 
@@ -46,17 +46,11 @@ defmodule Yggdrasil.UserRoleTest do
       role = Repo.insert! %Role{name: Atom.to_string(tr.name)}
 
       Enum.each tr.resources, fn trs ->
-        resource = Enum.find res, fn rs -> rs.name == Atom.to_string(trs.name) end
-
         Enum.each trs.perms, fn trpm ->
-          permission = Enum.find perms, fn pm -> 
-            pm.name == Atom.to_string(trpm)
-          end
-
           Repo.insert! %RoleResource{
             role_id: role.id,
-            resource_id: resource.id,
-            permission_id: permission.id
+            resource: Atom.to_string(trs.name),
+            permission: Atom.to_string(trpm)
           }
         end
       end

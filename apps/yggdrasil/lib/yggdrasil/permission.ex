@@ -1,9 +1,9 @@
 defmodule Yggdrasil.Permission do
   use Ecto.Schema
-  import Ecto.Changeset
 
+  @primary_key false
   schema "permissions" do
-    field :name, :string
+    field :name, :string, primary_key: true
 
     timestamps
   end
