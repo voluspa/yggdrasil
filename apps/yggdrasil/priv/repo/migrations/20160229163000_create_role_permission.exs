@@ -9,7 +9,6 @@ defmodule Yggdrasil.Repo.Migrations.CreateRoleResource do
 
       timestamps
     end
-    create index(:roles_permissions, [:role_id])
     create unique_index(:roles_permissions, [:role_id, :resource, :permission])
 
   end
