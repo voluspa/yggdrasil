@@ -1,10 +1,8 @@
 defmodule Yggdrasil.Resource do
   use Ecto.Schema
 
-  @primary_key false
+  @primary_key {:name, :string, []}
   schema "resources" do
-    field :name, :string, primary_key: true
-
     timestamps
   end
 end
