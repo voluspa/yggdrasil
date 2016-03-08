@@ -9,8 +9,6 @@
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
-import Ecto.Query, only: [from: 1, from: 2]
-
 require Logger
 
 alias Yggdrasil.{Repo, Resource, Permission, Role, RolePermission}

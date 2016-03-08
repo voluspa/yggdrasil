@@ -46,7 +46,7 @@ defmodule Yggdrasil.User do
   end
 
   def assign_role(user, role_name) do
-    role = Repo.one!(from r in Role, where: r.name == ^role_name, select: r)
+    role = Repo.get_by!(Role, name: role_name)
 
     user_role = UserRole.changeset(%UserRole{},
                                    %{user_id: user.id, role_id: role.id})
