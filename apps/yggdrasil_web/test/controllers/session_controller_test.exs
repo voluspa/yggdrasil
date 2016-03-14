@@ -81,8 +81,8 @@ defmodule YggdrasilWeb.SessionControllerTest do
     # user above contains some extra keys from the creation
     # so need to test against a fresh db record.
     user = User
-    |> User.with_roles
     |> Repo.get!(user.id)
+    |> User.load_permissions
 
     assert Guardian.serializer.from_token(claims["sub"]) == {:ok, user}
   end

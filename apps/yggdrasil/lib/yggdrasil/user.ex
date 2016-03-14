@@ -6,6 +6,8 @@ defmodule Yggdrasil.User do
 
   alias Yggdrasil.{Repo, User, Role, UserRole}
 
+  require IEx
+
   @default_role "player"
 
   schema "users" do
@@ -13,8 +15,7 @@ defmodule Yggdrasil.User do
     field :hash, :string
     field :password, :string, virtual: true # not part of table
     field :password_confirmation, :string, virtual: true # not part of table
-
-    has_many :user_roles, Yggdrasil.UserRole
+    field :permissions, :any, default: [], virtual: true # :any skips type checking
 
     timestamps
   end
@@ -56,6 +57,21 @@ defmodule Yggdrasil.User do
     end
   end
 
+  def load_permissions(user) do
+    query = from ur in UserRole,
+            where: ur.user_id ==  ^user.id,
+            preload: [role: [:role_permissions]]
+
+    permissions = query
+    |> Repo.all()
+    |> Enum.flat_map(fn ur -> ur.role.role_permissions end)
+    |> Enum.group_by(fn rp -> rp.resource end)
+    |> Enum.map(fn {r, rps} -> {String.to_atom(r), Enum.map(rps, fn rp -> String.to_atom(rp.permission) end)} end)
+    |> Enum.into(%{})
+
+    %{ user | permissions: permissions}
+  end
+
   @doc ~S"""
   Checks the list of resource/permissions pair given against what the user
   has been granted and returns true if and only if all permissions supplied
@@ -90,57 +106,26 @@ defmodule Yggdrasil.User do
       User.is_granted? user, foo: [:read], bar: [:read, :write]
   """
   def is_granted?(user, res_perms) do
-    # ensure users roles and the rest are loaded
-    # this does nothing if they are.
-    user = preload_roles(user)
-
     results = Enum.map res_perms, fn {res, perms} ->
-      res_perm_set = user.user_roles
-      |> Enum.flat_map(fn ur -> ur.role.role_permissions end)
-      |> Enum.filter(fn r -> r.resource == Atom.to_string(res) end)
-      |> Enum.map(fn r -> r.permission end)
+      res_perm_set = user.permissions
+      |> Map.get(res)
       |> MapSet.new
 
       # turn perm atoms into strings
-      perm_set = perms
-      |> Enum.map(fn p -> Atom.to_string(p) end)
-      |> MapSet.new
+      perm_set = MapSet.new(perms)
 
-      # subset returns true if the one being tested
-      # as a subset is empty
-      with true <- MapSet.size(res_perm_set) != 0,
-           true <- MapSet.size(perm_set) != 0,
-       do: MapSet.subset? perm_set, res_perm_set
+      cond do
+        MapSet.size(perm_set) == 0 ->
+          raise "permission set for resource #{res} can't be empty"
+        MapSet.size(res_perm_set) == 0 ->
+          raise "supplied permission set to check for resource #{res} can't be empty"
+        true ->
+          MapSet.subset? perm_set, res_perm_set
+      end
     end
 
     # all? defaults to checking for truthy values
     Enum.all? results
-  end
-
-  @doc """
-  Query that preloads the all the user_roles for a user inlcuding
-  all the subsequent associations.
-  """
-  def with_roles(query) do
-    from q in query,
-    preload: [
-      user_roles: [
-        role: [:role_permissions]
-      ]
-    ]
-  end
-
-  @doc """
-  Preloads the all the user_roles for a user that has already beend
-  fetched. This will loadd all subsequent roles like `with_roles` does
-  """
-  def preload_roles(user) do
-    query = from ur in UserRole,
-    preload: [
-      role: [:role_permissions]
-    ]
-
-    Repo.preload(user, user_roles: query)
   end
 
   # adds password at end of chain protects the hashpwsalt from seeing a nil value

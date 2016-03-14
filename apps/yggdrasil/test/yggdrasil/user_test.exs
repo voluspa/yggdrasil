@@ -2,7 +2,7 @@ defmodule Yggdrasil.UserTest do
   use ExUnit.Case, async: false
   import Ecto.Query, only: [from: 1, from: 2]
 
-  alias Yggdrasil.{Repo, User, Role, RolePermission, Resource, Permission}
+  alias Yggdrasil.{Repo, User, UserRole, Role, RolePermission, Resource, Permission}
   alias Comeonin.Bcrypt
 
   @min_len 4
@@ -118,6 +118,8 @@ defmodule Yggdrasil.UserTest do
       :ok = User.assign_role(user, Atom.to_string(r.name))
     end
 
+    user = User.load_permissions(user)
+
     res_perm_list = roles
     |> Enum.flat_map(fn r -> r.resources end)
     |> Enum.group_by(fn res -> res.name end)
@@ -152,21 +154,6 @@ defmodule Yggdrasil.UserTest do
     |> Enum.filter(fn combo -> combo == Enum.uniq_by(combo, fn {k, _} -> k end) end)
 
     {res_perm_combo, uniq_res_perm_combos}
-  end
-
-  defp ensure_roles_are_loaded(user) do
-    all_roles_loaded = fn ur ->
-      Ecto.assoc_loaded?(ur.role)
-    end
-
-    all_role_permissions_loaded = fn ur ->
-      Ecto.assoc_loaded?(ur.role.role_permissions)
-    end
-
-    with true <- Ecto.assoc_loaded?(user.user_roles),
-         true <- Enum.all?(Enum.map(user.user_roles, all_roles_loaded)),
-         true <- Enum.all?(Enum.map(user.user_roles, all_role_permissions_loaded)),
-     do: true
   end
 
   # -- tests
@@ -385,13 +372,12 @@ defmodule Yggdrasil.UserTest do
     role = Repo.one!(from r in Role, where: r.name == "player", select: r)
 
     {:ok, user} = User.create_with_default_role(@valid_attrs) 
-    user = Repo.preload(user, :user_roles)
 
-    default_role = Enum.find user.user_roles, fn ur ->
-      ur.role_id == role.id
-    end
+    q = from ur in UserRole,
+        where: ur.role_id == ^role.id and ur.user_id == ^ user.id,
+        select: ur
 
-    assert default_role.role_id == role.id
+    Repo.one! q
   end
 
   test "assign_role/2 associates supplied role to user" do
@@ -403,12 +389,11 @@ defmodule Yggdrasil.UserTest do
 
     :ok = User.assign_role(user, role.name)
 
-    user = Repo.preload(user, :user_roles)
+    q = from ur in UserRole,
+        where: ur.role_id == ^role.id and ur.user_id == ^ user.id,
+        select: ur
 
-    assigned_role = Enum.find user.user_roles, fn ur ->
-      ur.role_id == role.id
-    end
-    assert assigned_role.role_id == role.id
+    Repo.one! q
   end
 
   test "assign_role/2 with invalid user returns an error" do
@@ -428,39 +413,5 @@ defmodule Yggdrasil.UserTest do
     assert_raise Ecto.NoResultsError, fn ->
       User.assign_role(user, "_not_valid")
     end
-  end
-
-  test "preload_roles/1 takes a fetched user and preloads all the user_roles and child associations" do
-    roles = insert_test_roles
-
-    user = %User{}
-    |> User.create_changeset(@valid_attrs)
-    |> Repo.insert!
-
-    Enum.each roles, fn r ->
-      :ok = User.assign_role(user, r.name)
-    end
-
-    user = User.preload_roles(user)
-
-    assert ensure_roles_are_loaded(user)
-  end
-
-  test "with_roles/1 returns a query that fetches the user and preloads all the user_roles and child associations" do
-    roles = insert_test_roles
-
-    user = %User{}
-    |> User.create_changeset(@valid_attrs)
-    |> Repo.insert!
-
-    Enum.each roles, fn r ->
-      :ok = User.assign_role(user, r.name)
-    end
-
-    user = User
-    |> User.with_roles
-    |> Repo.one!
-
-    assert ensure_roles_are_loaded(user)
   end
 end
