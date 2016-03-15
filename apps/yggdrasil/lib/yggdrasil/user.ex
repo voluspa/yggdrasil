@@ -105,27 +105,55 @@ defmodule Yggdrasil.User do
       # checking multiple resources is allowed as well
       User.is_granted? user, foo: [:read], bar: [:read, :write]
   """
+  def is_granted?(_user, []) do
+    {:error, "res_perm list was empty"}
+  end
+
   def is_granted?(user, res_perms) do
     results = Enum.map res_perms, fn {res, perms} ->
-      res_perm_set = user.permissions
-      |> Map.get(res)
-      |> MapSet.new
+      res_perm_set = user.permissions[res]
 
-      # turn perm atoms into strings
-      perm_set = MapSet.new(perms)
+      # nil is returned if key doesn't exist
+      # nil can't be turned into a map so this
+      # must be explicitly handled.
+      if res_perm_set do
+        res_perm_set = MapSet.new(res_perm_set)
 
-      cond do
-        MapSet.size(perm_set) == 0 ->
-          raise "permission set for resource #{res} can't be empty"
-        MapSet.size(res_perm_set) == 0 ->
-          raise "supplied permission set to check for resource #{res} can't be empty"
-        true ->
-          MapSet.subset? perm_set, res_perm_set
+        # turn perm atoms into strings
+        perm_set = MapSet.new(perms)
+
+        cond do
+          MapSet.size(perm_set) == 0 ->
+            {:error, "permission set for resource #{res} can't be empty"}
+          MapSet.size(res_perm_set) == 0 ->
+            {:error, "supplied permission set to check for resource #{res} can't be empty"}
+          true ->
+            MapSet.subset?(perm_set, res_perm_set)
+        end
+      else
+        false
       end
     end
 
-    # all? defaults to checking for truthy values
-    Enum.all? results
+    errors = results
+    |> Enum.filter(fn {:error, _} -> true
+                      _           -> false end)
+    |> Enum.map(fn {_, msg} -> msg end)
+
+    case Enum.count(errors) > 0 do
+      true -> 
+        {:error, errors}
+      false ->
+        {:ok, Enum.all?(results)}
+    end
+  end
+
+  def is_granted!(user, res_perms) do
+    case is_granted?(user, res_perms) do
+      {:ok, result} -> result
+      {:error, msg} when is_list(msg) -> raise Enum.join(msg, "\n")
+      {:error, msg} -> raise msg
+    end
   end
 
   # adds password at end of chain protects the hashpwsalt from seeing a nil value

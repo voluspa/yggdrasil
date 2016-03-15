@@ -32,7 +32,7 @@ defmodule YggdrasilWeb.EnsurePermission do
 
   def call(conn, res_perms) do
     user = Guardian.Plug.current_resource(conn)
-    if User.is_granted?(user, res_perms) do
+    if User.is_granted!(user, res_perms) do
       conn
     else
       conn
