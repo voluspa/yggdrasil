@@ -392,6 +392,12 @@ defmodule Yggdrasil.UserTest do
     {:error, _} = User.is_granted?(user, [])
   end
 
+  test "is_granted?/2 returns false with nil resource perimssion list" do
+    {user, _, _} = user_perms_for_roles(@test_roles)
+
+    {:error, _} = User.is_granted?(user, nil)
+  end
+
   test "is_granted?/2 returns error tuple with permission map on user container a resource key with empty list" do
     user = %User{permissions: %{foo: [], bar: [:read, :write]}}
     perm_set = [foo: [:write], bar: [:read]]
@@ -421,6 +427,12 @@ defmodule Yggdrasil.UserTest do
     {user, _, _} = user_perms_for_roles(@test_roles)
 
     assert_raise RuntimeError, fn -> User.is_granted!(user, []) end
+  end
+
+  test "is_granted!/2 raises an error with nil resource perimssion list" do
+    {user, _, _} = user_perms_for_roles(@test_roles)
+
+    assert_raise RuntimeError, fn -> User.is_granted!(user, nil) end
   end
 
   test "is_granted!/2 raises an error with permission map on user container a resource key with empty list" do
