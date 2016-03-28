@@ -27,7 +27,7 @@ Repo.transaction fn ->
 
   Enum.each res, fn r ->
     if Repo.get(Resource, r) == nil do
-    Repo.insert! %Resource{name: r}
+      Repo.insert! %Resource{name: r}
     else
       Logger.warn fn -> "found resource #{r} skipping insert" end
     end

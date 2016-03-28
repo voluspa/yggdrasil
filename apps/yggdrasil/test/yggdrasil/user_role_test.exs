@@ -71,8 +71,6 @@ defmodule Yggdrasil.UserRoleTest do
     |> UserRole.changeset(%{user_id: -12, role_id: ctx.role.id})
     |> Repo.insert
 
-    assert {:error, _} = result
-
     {:error, changeset} = result
     assert {:user, "does not exist"} in changeset.errors
   end
@@ -81,8 +79,6 @@ defmodule Yggdrasil.UserRoleTest do
     result = %UserRole{}
     |> UserRole.changeset(%{user_id: ctx.user.id, role_id: -12})
     |> Repo.insert
-
-    assert {:error, _} = result
 
     {:error, changeset} = result
     assert {:role, "does not exist"} in changeset.errors
@@ -93,6 +89,6 @@ defmodule Yggdrasil.UserRoleTest do
     |> UserRole.changeset(%{user_id: ctx.user.id, role_id: ctx.role.id})
     |> Repo.insert
 
-    assert {:ok, _} = result
+    {:ok, _} = result
   end
 end
