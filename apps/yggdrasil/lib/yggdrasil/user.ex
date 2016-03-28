@@ -5,7 +5,6 @@ defmodule Yggdrasil.User do
   import Comeonin.Bcrypt, only: [hashpwsalt: 1]
 
   require Logger
-  require IEx
 
   alias Yggdrasil.{Repo, User, Role, UserRole}
 
@@ -106,42 +105,30 @@ defmodule Yggdrasil.User do
       # checking multiple resources is allowed as well
       User.is_granted? user, foo: [:read], bar: [:read, :write]
   """
-  def is_granted!(user, res_perms) do
-    case is_granted?(user, res_perms) do
-      {:ok, result}  -> result
-      {:error, msgs} -> raise RuntimeError, inspect(msgs)
-    end
-  end
 
-  def is_granted?(_user, []),  do: build_error ["resource keyword list is empty"]
-  def is_granted?(_user, nil), do: build_error ["resource keyword list is nil"]
+  def is_granted?(_user, []),  do: raise_error "resource keyword list is empty"
+  def is_granted?(_user, nil), do: raise_error "resource keyword list is nil"
   def is_granted?(user, res_perms) do
     res_perms
     |> Enum.map(fn {res, perms} -> {res, user.permissions[res], perms} end)
     |> Enum.map(&has_permissions/1)
-    |> Enum.reduce({:ok, true}, fn
-      {:ok, _},  acc={:ok, false}   -> acc
-      {:ok, res},    {:ok, true}    -> {:ok, res}
-      {:ok, _},  acc={:error, _}    -> acc
-      {:error, msg}, {:ok, _}       -> {:error, [msg]}
-      {:error, msg}, {:error, msgs} -> {:error, [msg|msgs]}
-    end)
+    |> Enum.all?
   end
 
-  defp has_permissions({_res, nil, _requried}), do: {:ok, false}
-  defp has_permissions({res, _given, nil}),     do: build_error "required permission list is nil for #{res}"
-  defp has_permissions({res, [], _required}),   do: build_error "given permission list is empty for #{res}"
-  defp has_permissions({res, _given, []}),      do: build_error "required permission list is empty for #{res}"
+  defp has_permissions({_res, nil, _requried}), do: false
+  defp has_permissions({res, _given, nil}),     do: raise_error "required permission list is nil for #{res}"
+  defp has_permissions({res, [], _required}),   do: raise_error "given permission list is empty for #{res}"
+  defp has_permissions({res, _given, []}),      do: raise_error "required permission list is empty for #{res}"
   defp has_permissions({_res, given, required}) do
     given = MapSet.new given
     required = MapSet.new required
 
-    {:ok, MapSet.subset?(required, given)}
+    MapSet.subset?(required, given)
   end
 
-  defp build_error(msg) do
+  defp raise_error(msg) do
     Logger.error msg
-    {:error, msg}
+    raise ArgumentError, message: msg
   end
 
   # adds password at end of chain protects the hashpwsalt from seeing a nil value

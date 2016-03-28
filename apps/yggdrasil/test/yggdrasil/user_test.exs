@@ -308,21 +308,21 @@ defmodule Yggdrasil.UserTest do
     refute Map.has_key?(changeset.changes, :hash)
   end
 
-  test "is_granted!/2 returns true with all granted resource/perms" do
+  test "is_granted?/2 returns true with all granted resource/perms" do
     {user, res_uniq_perm_list, _} = user_perms_for_roles(@test_roles)
 
-    assert User.is_granted! user, res_uniq_perm_list
+    assert User.is_granted? user, res_uniq_perm_list
   end
 
-  test "is_granted!/2 returns true for any one resources's granted permission set" do
+  test "is_granted?/2 returns true for any one resources's granted permission set" do
     {user, res_uniq_perm_list, _} = user_perms_for_roles(@test_roles)
 
     Enum.each res_uniq_perm_list, fn res_perm ->
-      assert User.is_granted! user, [res_perm]
+      assert User.is_granted? user, [res_perm]
     end
   end
 
-  test "is_granted!/2 returns true any combination of granted permissions" do
+  test "is_granted?/2 returns true any combination of granted permissions" do
     {user, res_uniq_perm_list, _} = user_perms_for_roles(@test_roles)
 
     {res_perm_combo, uniq_res_perm_combos} = produce_resoure_perms_combos(res_uniq_perm_list)
@@ -330,17 +330,17 @@ defmodule Yggdrasil.UserTest do
     # lets check each resource combo individually first
     Enum.each res_perm_combo, fn res_list ->
       Enum.each res_list, fn combo ->
-        assert User.is_granted! user, [combo]
+        assert User.is_granted? user, [combo]
       end
     end
 
     # now lets check all the combos
     Enum.each uniq_res_perm_combos, fn combo ->
-      assert User.is_granted! user, combo
+      assert User.is_granted? user, combo
     end
   end
 
-  test "is_granted!/2 returns false for all combinations of non granted permissions" do
+  test "is_granted?/2 returns false for all combinations of non granted permissions" do
     {user, res_uniq_perm_list, _} = user_perms_for_roles(@test_roles)
 
     res_uniq_perm_list = Enum.map res_uniq_perm_list, fn {res, perms} ->
@@ -358,95 +358,58 @@ defmodule Yggdrasil.UserTest do
     # lets check each resource combo individually first
     Enum.each res_perm_combo, fn res_list ->
       Enum.each res_list, fn combo ->
-        refute User.is_granted! user, [combo]
+        refute User.is_granted? user, [combo]
       end
     end
 
     # now lets check all the combos
     Enum.each uniq_res_perm_combos, fn combo ->
-      refute User.is_granted! user, combo
+      refute User.is_granted? user, combo
     end
   end
 
-  test "is_granted!/2 returns false when resource is missing on users permissions map" do
+  test "is_granted?/2 returns false when resource is missing on users permissions map" do
     user = %User{permissions: %{bar: [:read, :write]}}
     perm_set = [foo: [:write], bar: [:read]]
 
-    refute User.is_granted!(user, perm_set)
+    refute User.is_granted?(user, perm_set)
   end
 
-  test "is_granted?/2 returns error tuple with empty permissions set passed in for a resource" do
-    {user, res_uniq_perm_list, _} = user_perms_for_roles(@test_roles)
-
-    all_empty = Enum.map(res_uniq_perm_list, fn {res, _} -> {res, []} end)
-    [{res, _} | t] = res_uniq_perm_list
-
-    {:error, _} = User.is_granted?(user, [{res, []}])
-    {:error, _} = User.is_granted?(user, [{res, []} | t])
-    {:error, _} = User.is_granted?(user, all_empty)
-  end
-
-  test "is_granted?/2 returns error tuple with empty resource perimssion list" do
-    {user, _, _} = user_perms_for_roles(@test_roles)
-
-    {:error, _} = User.is_granted?(user, [])
-  end
-
-  test "is_granted?/2 returns false with nil resource perimssion list" do
-    {user, _, _} = user_perms_for_roles(@test_roles)
-
-    {:error, _} = User.is_granted?(user, nil)
-  end
-
-  test "is_granted?/2 returns error tuple with permission map on user container a resource key with empty list" do
-    user = %User{permissions: %{foo: [], bar: [:read, :write]}}
-    perm_set = [foo: [:write], bar: [:read]]
-
-    {:error, _} = User.is_granted?(user, perm_set)
-  end
-
-  test "is_granted?/2 does not return an error tuple when resource is missing on users permissions map" do
-    user = %User{permissions: %{bar: [:read, :write]}}
-    perm_set = [foo: [:write], bar: [:read]]
-
-    {:ok, _val} = User.is_granted?(user, perm_set)
-  end
-
-  test "is_granted!/2 raises an error with with empty permissions set passed in for a resource" do
+  test "is_granted?/2 raises an error with with empty permissions set passed in for a resource" do
     {user, res_uniq_perm_list, _} = user_perms_for_roles(@test_roles)
 
     all_empty = Enum.map(res_uniq_perm_list, fn {res, _} -> {res, []} end)
     [{res, _perms} | t] = res_uniq_perm_list
 
-    assert_raise RuntimeError, fn -> User.is_granted!(user, [{res, []}]) end
-    assert_raise RuntimeError, fn -> User.is_granted!(user, [{res, []} | t]) end
-    assert_raise RuntimeError, fn -> User.is_granted!(user, all_empty) end
+    assert_raise ArgumentError, fn -> User.is_granted?(user, [{res, []}]) end
+    assert_raise ArgumentError, fn -> User.is_granted?(user, [{res, []} | t]) end
+    assert_raise ArgumentError, fn -> User.is_granted?(user, all_empty) end
   end
 
-  test "is_granted!/2 raises an error with empty resource perimssion list" do
+  test "is_granted?/2 raises an error with empty resource perimssion list" do
     {user, _, _} = user_perms_for_roles(@test_roles)
 
-    assert_raise RuntimeError, fn -> User.is_granted!(user, []) end
+    assert_raise ArgumentError, fn -> User.is_granted?(user, []) end
   end
 
-  test "is_granted!/2 raises an error with nil resource perimssion list" do
+  test "is_granted?/2 raises an error with nil resource perimssion list" do
     {user, _, _} = user_perms_for_roles(@test_roles)
 
-    assert_raise RuntimeError, fn -> User.is_granted!(user, nil) end
+    assert_raise ArgumentError, fn -> User.is_granted?(user, nil) end
   end
 
-  test "is_granted!/2 raises an error with permission map on user container a resource key with empty list" do
+  test "is_granted?/2 raises an error with permission map on user container a resource key with empty list" do
     user = %User{permissions: %{foo: [], bar: [:read, :write]}}
     perm_set = [foo: [:write], bar: [:read]]
 
-    assert_raise RuntimeError, fn -> User.is_granted!(user, perm_set) end
+    assert_raise ArgumentError, fn -> User.is_granted?(user, perm_set) end
   end
 
-  test "is_granted!/2 does not raise an error when resource is missing on users permissions map" do
+  test "is_granted?/2 does not raise an error when resource is missing on users permissions map" do
     user = %User{permissions: %{bar: [:read, :write]}}
     perm_set = [foo: [:write], bar: [:read]]
 
-    User.is_granted!(user, perm_set)
+    User.is_granted?(user, perm_set)
   end
 
   test "create_with_default_role/1 creates user and assigns 'player' as the default role" do

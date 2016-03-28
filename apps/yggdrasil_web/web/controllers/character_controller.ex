@@ -88,6 +88,6 @@ defmodule YggdrasilWeb.CharacterController do
   end
 
   defp has_all?(user) do
-    User.is_granted!(user, character: [:all])
+    User.is_granted?(user, character: [:all])
   end
 end
