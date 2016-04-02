@@ -15,13 +15,10 @@ defmodule YggdrasilWeb.CharacterControllerTest do
 
   setup %{conn: conn} do
     # need a user to gen a token for api
-    {:ok, user} = %User{}
-    |> User.create_changeset(@user)
-    |> Repo.insert
+    user2_attrs = %{@user | username: "tester2"}
 
-    {:ok, user2} = %User{}
-    |> User.create_changeset(%{@user | username: "tester2"})
-    |> Repo.insert
+    {:ok, user} = User.create_with_default_role(@user)
+    {:ok, user2} = User.create_with_default_role(user2_attrs)
 
     users = Enum.map [user, user2], fn u ->
       {:ok, token, _claims} = Guardian.encode_and_sign u, :token

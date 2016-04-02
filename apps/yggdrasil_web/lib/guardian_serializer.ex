@@ -1,12 +1,20 @@
 defmodule YggdrasilWeb.GuardianSerializer do
   @behaviour Guardian.Serializer
 
-  alias Yggdrasil.Repo
-  alias Yggdrasil.User
+  require Ecto.Query
+  import Ecto.Query, only: [from: 1, from: 2]
+
+  alias Yggdrasil.{Repo, User, Role}
 
   def for_token(user = %User{}), do: {:ok, "user:#{user.id}"}
   def for_token(_), do: {:error, "Unknown resource type."}
 
-  def from_token("user:" <> user_id), do: {:ok, Repo.get(User, user_id)}
+  def from_token("user:" <> user_id) do
+    user = User
+    |> Repo.get!(user_id)
+    |> User.load_permissions
+
+    {:ok, user}
+  end
   def from_token(_), do: {:error, "Unknown resource type."}
 end

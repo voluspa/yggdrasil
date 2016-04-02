@@ -11,15 +11,14 @@ defmodule YggdrasilWeb.RegistrationController do
   end
 
   def create(conn, %{"data" => %{"attributes" => attributes}}) do
-    changeset = User.create_changeset(%User{}, attributes)
 
-    case Repo.insert(changeset) do
+    case User.create_with_default_role(attributes) do
       {:ok, new_user} ->
         conn
           |> Guardian.Plug.api_sign_in(new_user)
           |> render(:show, data: new_user)
-      {:error, err_changeset} ->
-        render conn, :errors, data: err_changeset
+      {:error, err} ->
+        render conn, :errors, data: err
     end
   end
 

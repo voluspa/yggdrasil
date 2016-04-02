@@ -12,9 +12,7 @@ defmodule YggdrasilWeb.GameControllerTest do
 
   setup %{conn: conn} do
     # need a user to gen a token for api
-    {:ok, user} = %User{}
-    |> User.create_changeset(@user)
-    |> Repo.insert
+    {:ok, user} = User.create_with_default_role(@user)
 
     #api token
     {:ok, token, _claims} = Guardian.encode_and_sign user, :token
