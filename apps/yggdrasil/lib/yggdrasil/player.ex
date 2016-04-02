@@ -5,18 +5,18 @@ defmodule Yggdrasil.Player do
   alias Yggdrasil.Player.Registry
   alias Yggdrasil.Command
 
-  def start_link(user_id, owner_pid, push_msg) do
-    GenServer.start_link __MODULE__, [user_id, owner_pid, push_msg]
+  def start_link(char_id, owner_pid, push_msg) do
+    GenServer.start_link __MODULE__, [char_id, owner_pid, push_msg]
   end
 
-  def join_game(user_id, owner_pid, push_msg) do
-    Supervisor.add_player user_id, [owner_pid, push_msg]
+  def join_game(char_id, owner_pid, push_msg) do
+    Supervisor.add_player char_id, [owner_pid, push_msg]
   end
 
-  def run_cmd(user_id, cmd) do
+  def run_cmd(char_id, cmd) do
     # horrible terrible temporary implementation
     # room would eventually do all of this
-    ctxt = %Yggdrasil.Room.Context{ player: user_id }
+    ctxt = %Yggdrasil.Room.Context{ player: char_id }
     ctxt = Command.execute cmd, ctxt
 
     Enum.each ctxt.actions,
@@ -25,19 +25,19 @@ defmodule Yggdrasil.Player do
       end
   end
 
-  def notify(user_id, msg = %Message{}) do
-    player_pid = Registry.get_player user_id
+  def notify(char_id, msg = %Message{}) do
+    player_pid = Registry.get_player char_id
     GenServer.cast(player_pid, {:notify, msg})
   end
 
 
-  def init([user_id, channel_pid, push_msg]) do
-    case Registry.register_player(user_id, self) do
+  def init([char_id, channel_pid, push_msg]) do
+    case Registry.register_player(char_id, self) do
       :ok ->
         monitor_ref = Process.monitor channel_pid
         push_msg.(Message.info("Welcome to the game"))
         {:ok, %{
-          user: user_id,
+          character: char_id,
           channel: channel_pid,
           monitor: monitor_ref,
           push_msg: push_msg

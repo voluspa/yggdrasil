@@ -41,7 +41,9 @@ defmodule Yggdrasil.Mixfile do
     [
       {:postgrex, ">= 0.0.0"},
       {:ecto, "~> 1.1"},
-      {:excoveralls, "~>0.5.1"}
+      {:comeonin, "~> 2.0"},
+      {:excoveralls, "~>0.5.1"},
+      {:combination, "~> 0.0.2", only: :test}
     ]
   end
 

@@ -10,6 +10,7 @@ defmodule YggdrasilWeb.Router do
   pipeline :guardian do
     plug Guardian.Plug.VerifyHeader
     plug Guardian.Plug.EnsureAuthenticated, handler: YggdrasilWeb.GuardianErrorHandler
+    plug Guardian.Plug.LoadResource
   end
 
   @docs """
@@ -37,6 +38,11 @@ defmodule YggdrasilWeb.Router do
     pipe_through :api
     pipe_through :guardian
 
-    # not used at the moment, but setup
+    get "/games", GameController, :index
+
+    get "/characters", CharacterController, :index
+    get "/characters/:char_id", CharacterController, :show
+    post "/characters", CharacterController, :create
+    delete "/characters/:char_id", CharacterController, :delete
   end
 end
